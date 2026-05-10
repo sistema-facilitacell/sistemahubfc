@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilita Cell — Sistema Integrado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF6B00;
+  --orange-dim: rgba(255,107,0,.15);
+  --orange-glow: rgba(255,107,0,.3);
+  --bg: #070708;
+  --panel: #0d0d0f;
+  --panel2: #111113;
+  --border: rgba(255,107,0,.13);
+  --border2: rgba(255,255,255,.06);
+  --text: #f0ede8;
+  --muted: #555;
+  --muted2: #888;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+
+/* ══════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════ */
+#login-screen{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:stretch;
+  transition:opacity .5s ease,transform .5s ease;
+}
+#login-screen.hiding{opacity:0;transform:scale(.97);pointer-events:none}
+
+.login-left{
+  width:420px;flex-shrink:0;
+  background:var(--panel);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 50px;position:relative;z-index:2;
+  box-shadow:6px 0 80px rgba(0,0,0,.6);
+}
+.login-left::before{
+  content:'';position:absolute;top:0;right:0;
+  width:180px;height:180px;
+  background:radial-gradient(circle at top right,rgba(255,107,0,.1) 0%,transparent 65%);
+  pointer-events:none;
+}
+.login-left::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:180px;height:180px;
+  background:radial-gradient(circle at bottom left,rgba(255,107,0,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+.login-right{
+  flex:1;position:relative;overflow:hidden;background:#07080a;
+  display:flex;align-items:center;justify-content:center;
+}
+.lg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,107,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,0,.04) 1px,transparent 1px);
+  background-size:52px 52px;
+  animation:gridDrift 20s linear infinite;
+}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:52px 52px}}
+.lg-glow{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(255,107,0,.1) 0%,transparent 65%);
+  animation:glowPulse 5s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+.lg-right-content{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:32px;
+  text-align:center;
+}
+.lg-logo-big{
+  width:90px;height:90px;
+  background:var(--orange-dim);border:2px solid var(--border);
+  border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--orange);
+  box-shadow:0 0 60px rgba(255,107,0,.2);
+  animation:floatY 5s ease-in-out infinite;
+}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.lg-tagline{
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:800;color:#fff;
+  letter-spacing:-.5px;line-height:1.2;
+}
+.lg-tagline span{color:var(--orange);display:block;text-shadow:0 0 30px var(--orange-glow)}
+.lg-modules{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  max-width:340px;
+}
+.lg-mod{
+  background:rgba(255,107,0,.07);border:1px solid var(--border);
+  border-radius:10px;padding:12px 8px;
+  font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:rgba(255,107,0,.7);text-align:center;
+}
+.lg-corner{
+  position:absolute;bottom:24px;right:28px;
+  font-family:'Syne',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:rgba(255,107,0,.25);
+}
+
+/* brand */
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:40px;animation:fadeUp .5s ease both}
+.brand-ico{
+  width:44px;height:44px;background:var(--orange-dim);
+  border:1.5px solid var(--border);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;color:var(--orange);flex-shrink:0;
+}
+.b1{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);display:block}
+.b2{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;color:#fff;display:block}
+.b3{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;color:var(--orange);display:block;text-shadow:0 0 16px var(--orange-glow)}
+
+.heading{margin-bottom:26px;animation:fadeUp .5s .1s ease both}
+.heading h1{font-family:'Syne',sans-serif;font-size:27px;font-weight:800;color:#fff;margin-bottom:4px}
+.heading p{font-size:13px;color:var(--muted2)}
+.divider{width:36px;height:3px;background:var(--orange);border-radius:2px;margin-bottom:26px;box-shadow:0 0 10px var(--orange-glow);animation:fadeUp .5s .15s ease both}
+
+.field{margin-bottom:16px;animation:fadeUp .5s ease both}
+.field:nth-child(1){animation-delay:.2s}.field:nth-child(2){animation-delay:.26s}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#777;margin-bottom:6px}
+.fw{
+  display:flex;align-items:center;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:11px;padding:0 14px;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.fw:focus-within{border-color:var(--orange);background:rgba(255,107,0,.04);box-shadow:0 0 0 3px rgba(255,107,0,.1)}
+.fw .ico{color:var(--orange);display:flex;align-items:center;flex-shrink:0;margin-right:10px;opacity:.8}
+.fw input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:13px 0}
+.fw input::placeholder{color:#252528}
+.eye{background:none;border:none;cursor:pointer;color:#333;display:flex;align-items:center;padding:0;transition:color .2s}
+.eye:hover{color:var(--orange)}
+
+.forgot-row{display:flex;justify-content:flex-end;margin:-4px 0 22px;animation:fadeUp .5s .3s ease both}
+.forgot-row a{font-size:12px;color:var(--orange);text-decoration:none;opacity:.75;transition:opacity .2s}
+.forgot-row a:hover{opacity:1}
+
+.btn-login{
+  width:100%;height:50px;
+  background:linear-gradient(135deg,#FF6B00 0%,#FF9500 100%);
+  border:none;border-radius:11px;color:#000;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
+  letter-spacing:3px;text-transform:uppercase;cursor:pointer;
+  box-shadow:0 4px 28px rgba(255,107,0,.38),inset 0 1px 0 rgba(255,255,255,.12);
+  transition:transform .16s,box-shadow .2s,filter .2s;
+  animation:fadeUp .5s .35s ease both;position:relative;overflow:hidden;
+}
+.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,transparent 55%);border-radius:11px}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(255,107,0,.52);filter:brightness(1.07)}
+.btn-login:active{transform:scale(.98)}
+.btn-login:disabled{cursor:not-allowed}
+
+.err{display:none;margin-top:10px;padding:9px 13px;background:rgba(200,40,40,.08);border:1px solid rgba(200,40,40,.2);border-radius:8px;color:#f87;font-size:12px;text-align:center}
+.err.on{display:block}
+.form-footer{margin-top:28px;display:flex;align-items:center;gap:7px;color:#252528;font-size:11px;animation:fadeUp .5s .4s ease both}
+.form-footer svg{color:rgba(255,107,0,.3);flex-shrink:0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════
+   HUB SCREEN
+══════════════════════════════ */
+#hub-screen{
+  position:fixed;inset:0;z-index:100;
+  display:none;opacity:0;
+  transition:opacity .5s ease;
+  background:var(--bg);
+  flex-direction:column;
+  overflow:hidden;
+}
+#hub-screen.visible{opacity:1}
+
+/* Top bar */
+.hub-topbar{
+  height:58px;flex-shrink:0;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 28px;
+  gap:16px;position:relative;z-index:10;
+}
+.hub-topbar-brand{display:flex;align-items:center;gap:10px}
+.hub-topbar-ico{
+  width:34px;height:34px;background:var(--orange-dim);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:var(--orange);flex-shrink:0;
+}
+.hub-topbar-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff}
+.hub-topbar-name span{color:var(--orange)}
+.hub-topbar-sep{width:1px;height:20px;background:var(--border2);margin:0 8px}
+.hub-topbar-title{font-size:12px;color:var(--muted2);font-weight:500}
+.hub-topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.hub-clock{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--orange);letter-spacing:1px}
+.hub-user{display:flex;align-items:center;gap:8px}
+.hub-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--orange-dim);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--orange);
+}
+.hub-username{font-size:12px;font-weight:600;color:#bbb}
+.btn-logout{
+  background:none;border:1px solid rgba(255,255,255,.07);
+  border-radius:7px;padding:5px 10px;cursor:pointer;
+  color:#555;font-size:11px;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;gap:5px;
+  transition:color .2s,border-color .2s;
+}
+.btn-logout:hover{color:#f87;border-color:rgba(248,119,119,.3)}
+
+/* Search */
+.hub-search-bar{
+  padding:20px 28px 0;
+  display:flex;align-items:center;gap:12px;
+}
+.search-wrap{
+  flex:1;max-width:420px;
+  background:var(--panel2);border:1px solid var(--border2);
+  border-radius:10px;padding:0 14px;
+  display:flex;align-items:center;gap:10px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search-wrap:focus-within{border-color:rgba(255,107,0,.4);box-shadow:0 0 0 3px rgba(255,107,0,.08)}
+.search-wrap input{
+  background:none;border:none;outline:none;
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:10px 0;width:100%;
+}
+.search-wrap input::placeholder{color:#333}
+.search-wrap svg{color:#333;flex-shrink:0}
+.hub-greeting{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#fff;
+}
+.hub-greeting span{color:var(--orange)}
+.hub-sub{font-size:12px;color:var(--muted2);margin-top:2px}
+
+/* Categories + cards */
+.hub-body{
+  flex:1;overflow-y:auto;
+  padding:20px 28px 32px;
+  display:flex;flex-direction:column;gap:24px;
+}
+.hub-body::-webkit-scrollbar{width:4px}
+.hub-body::-webkit-scrollbar-track{background:transparent}
+.hub-body::-webkit-scrollbar-thumb{background:#1a1a1e;border-radius:2px}
+
+.cat-label{
+  font-size:9.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:12px;
+  display:flex;align-items:center;gap:10px;
+}
+.cat-label::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;
+}
+
+.sys-card{
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:14px;padding:20px;
+  cursor:pointer;
+  text-decoration:none;color:inherit;
+  position:relative;overflow:hidden;
+  transition:border-color .22s,transform .22s,box-shadow .22s;
+  display:flex;flex-direction:column;gap:12px;
+}
+.sys-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--card-color,var(--orange)),transparent);
+  opacity:0;transition:opacity .22s;
+}
+.sys-card:hover{
+  border-color:var(--card-color,var(--orange));
+  transform:translateY(-3px);
+  box-shadow:0 8px 30px rgba(0,0,0,.4),0 0 0 1px var(--card-color,var(--orange)) inset;
+}
+.sys-card:hover::before{opacity:1}
+
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.card-ico{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--card-bg,rgba(255,107,0,.12));
+  color:var(--card-color,var(--orange));
+  flex-shrink:0;font-size:18px;
+}
+.card-arrow{
+  color:#2a2a2e;transition:color .22s,transform .22s;
+  flex-shrink:0;margin-top:2px;
+}
+.sys-card:hover .card-arrow{color:var(--card-color,var(--orange));transform:translate(2px,-2px)}
+
+.card-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#e8e5e0;line-height:1.2}
+.card-desc{font-size:11.5px;color:var(--muted2);line-height:1.5}
+.card-tag{
+  display:inline-flex;align-items:center;
+  background:var(--card-bg,rgba(255,107,0,.1));
+  color:var(--card-color,var(--orange));
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:5px;width:fit-content;
+}
+
+/* Stats bar */
+.hub-stats{
+  display:flex;gap:14px;flex-wrap:wrap;
+  padding:0 28px;
+}
+.stat-pill{
+  background:var(--panel2);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.stat-pill-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 6px var(--orange-glow)}
+.stat-pill-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff}
+.stat-pill-label{font-size:11px;color:var(--muted2)}
+
+/* Responsive */
+@media(max-width:700px){
+  .login-left{width:100%;padding:40px 24px 50px}
+  .login-right{display:none}
+  html,body{overflow:auto;height:auto}
+  #login-screen{position:relative;flex-direction:column;min-height:100vh}
+  .hub-topbar{padding:0 16px}
+  .hub-body,.hub-search-bar,.hub-stats{padding-left:16px;padding-right:16px}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-left">
+    <div class="brand">
+      <div class="brand-ico">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <span class="b1">Sistemas</span>
+        <span class="b2">Integrado</span>
+        <span class="b3">Facilita Cell</span>
+      </div>
+    </div>
+
+    <div class="heading">
+      <h1>Bem-vindo de volta</h1>
+      <p>Acesse sua conta para continuar</p>
+    </div>
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="fu">Usuário</label>
+      <div class="fw">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <input id="fu" type="text" placeholder="Digite seu usuário" autocomplete="username"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fp">Senha</label>
+      <div class="fw">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input id="fp" type="password" placeholder="Digite sua senha" autocomplete="current-password"/>
+        <button class="eye" onclick="toggleEye(this)" aria-label="Ver senha">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="forgot-row"><a href="#">Esqueci minha senha?</a></div>
+
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no sistema</button>
+    <div class="err" id="err">Usuário ou senha inválidos. Tente novamente.</div>
+
+    <div class="form-footer">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Conexão segura · Facilita Cell © 2025
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="lg-grid"></div>
+    <div class="lg-glow"></div>
+    <div class="lg-right-content">
+      <div class="lg-logo-big">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".15"/>
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="lg-tagline">Hub Central<span>Facilita Cell</span></div>
+      </div>
+      <div class="lg-modules">
+        <div class="lg-mod">Financeiro</div>
+        <div class="lg-mod">Vendas</div>
+        <div class="lg-mod">Estoque</div>
+        <div class="lg-mod">RH</div>
+        <div class="lg-mod">Contratos</div>
+        <div class="lg-mod">Analytics</div>
+        <div class="lg-mod">Sorteio</div>
+        <div class="lg-mod">Crédito</div>
+        <div class="lg-mod">Fiscal</div>
+      </div>
+    </div>
+    <div class="lg-corner">Sistema Integrado · Facilita Cell</div>
+  </div>
+</div>
+
+<!-- ══════════════ HUB ══════════════ -->
+<div id="hub-screen">
+  <!-- Topbar -->
+  <div class="hub-topbar">
+    <div class="hub-topbar-brand">
+      <div class="hub-topbar-ico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="hub-topbar-name">FACILITA <span>CELL</span></div>
+    </div>
+    <div class="hub-topbar-sep"></div>
+    <div class="hub-topbar-title">Hub de Sistemas</div>
+    <div class="hub-topbar-right">
+      <div class="hub-clock" id="hubClock">00:00</div>
+      <div class="hub-user">
+        <div class="hub-avatar">FC</div>
+        <div class="hub-username">Administrador</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <!-- Search + greeting -->
+  <div class="hub-search-bar">
+    <div>
+      <div class="hub-greeting">Olá, <span>Facilita Cell</span> 👋</div>
+      <div class="hub-sub">Selecione um sistema para acessar</div>
+    </div>
+    <div style="margin-left:auto">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar sistema..." id="searchInput" oninput="filterCards()"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="hub-stats">
+    <div class="stat-pill">
+      <div class="stat-pill-dot"></div>
+      <div class="stat-pill-val">15</div>
+      <div class="stat-pill-label">Sistemas ativos</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-dot" style="background:#4caf50;box-shadow:0 0 6px #4caf5066"></div>
+      <div class="stat-pill-val" style="color:#4caf50">Online</div>
+      <div class="stat-pill-label">Status geral</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-dot" style="background:#42a5f5;box-shadow:0 0 6px #42a5f566"></div>
+      <div class="stat-pill-val" id="statDate" style="color:#42a5f5">--/--</div>
+      <div class="stat-pill-label">Data atual</div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="hub-body" id="hubBody">
+
+    <!-- FINANCEIRO & CRÉDITO -->
+    <div class="cat-section" data-cat="financeiro">
+      <div class="cat-label">💰 Financeiro & Crédito</div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://financred-facilitacell.netlify.app" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.1)" data-name="financred financiamento crédito celulares">
+          <div class="card-head">
+            <div class="card-ico">💳</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">FinanCred</div>
+            <div class="card-desc">Financiamento inteligente de celulares com aprovação automatizada</div>
+          </div>
+          <div class="card-tag">Financiamento</div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/LUCROCELL/" target="_blank"
+           style="--card-color:#f0b429;--card-bg:rgba(240,180,41,.1)" data-name="lucrocell lucro controladoria precificação margem">
+          <div class="card-head">
+            <div class="card-ico">📈</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">LucroCell</div>
+            <div class="card-desc">Sistema de controladoria, precificação e análise de margem de lucro</div>
+          </div>
+          <div class="card-tag" style="background:rgba(240,180,41,.1);color:#f0b429">Controladoria</div>
+        </a>
+
+        <a class="sys-card" href="https://salario-comissao-calculadora.netlify.app" target="_blank"
+           style="--card-color:#66bb6a;--card-bg:rgba(102,187,106,.1)" data-name="salário comissão calculadora folha pagamento">
+          <div class="card-head">
+            <div class="card-ico">🧮</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Calculadora Salário</div>
+            <div class="card-desc">Cálculo de salários, comissões e remuneração variável da equipe</div>
+          </div>
+          <div class="card-tag" style="background:rgba(102,187,106,.1);color:#66bb6a">Comissões</div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/simuladorpaymobi/" target="_blank"
+           style="--card-color:#ab47bc;--card-bg:rgba(171,71,188,.1)" data-name="simulador paymobi pagamento parcelas">
+          <div class="card-head">
+            <div class="card-ico">📱</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Simulador PayMobi</div>
+            <div class="card-desc">Simulação de parcelamentos e condições de pagamento PayMobi</div>
+          </div>
+          <div class="card-tag" style="background:rgba(171,71,188,.1);color:#ab47bc">Simulador</div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/consultapayjoy/" target="_blank"
+           style="--card-color:#26c6da;--card-bg:rgba(38,198,218,.1)" data-name="consulta payjoy financeira crédito">
+          <div class="card-head">
+            <div class="card-ico">🔍</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Consulta PayJoy</div>
+            <div class="card-desc">Consulta de status e informações de financiamentos PayJoy</div>
+          </div>
+          <div class="card-tag" style="background:rgba(38,198,218,.1);color:#26c6da">Consulta</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- RH & COLABORADORES -->
+    <div class="cat-section" data-cat="rh">
+      <div class="cat-label">👥 RH & Colaboradores</div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/portal/" target="_blank"
+           style="--card-color:#42a5f5;--card-bg:rgba(66,165,245,.1)" data-name="portal colaborador funcionário documentos benefícios">
+          <div class="card-head">
+            <div class="card-ico">👤</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Portal do Colaborador</div>
+            <div class="card-desc">Documentos, contracheques, benefícios e informações pessoais</div>
+          </div>
+          <div class="card-tag" style="background:rgba(66,165,245,.1);color:#42a5f5">Colaborador</div>
+        </a>
+
+        <a class="sys-card" href="https://rhdigitalfacilita-create.github.io/rhdigitalfacilita.github.io/" target="_blank"
+           style="--card-color:#ef5350;--card-bg:rgba(239,83,80,.1)" data-name="rh digital recursos humanos gestão">
+          <div class="card-head">
+            <div class="card-ico">🏢</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">RH Digital</div>
+            <div class="card-desc">Gestão digital completa de recursos humanos da Facilita Cell</div>
+          </div>
+          <div class="card-tag" style="background:rgba(239,83,80,.1);color:#ef5350">RH</div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofacilitacell/" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.1)" data-name="recrutamento seleção candidatos vagas">
+          <div class="card-head">
+            <div class="card-ico">🎯</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Recrutamento</div>
+            <div class="card-desc">Processo seletivo, triagem de candidatos e gestão de vagas</div>
+          </div>
+          <div class="card-tag">Seleção</div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofase1/" target="_blank"
+           style="--card-color:#ffa726;--card-bg:rgba(255,167,38,.1)" data-name="recrutamento fase 1 candidato etapa">
+          <div class="card-head">
+            <div class="card-ico">📋</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Recrutamento Fase 1</div>
+            <div class="card-desc">Primeira etapa do processo seletivo e captação de candidatos</div>
+          </div>
+          <div class="card-tag" style="background:rgba(255,167,38,.1);color:#ffa726">Fase 1</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- JURÍDICO & CONTRATOS -->
+    <div class="cat-section" data-cat="juridico">
+      <div class="cat-label">📄 Jurídico & Contratos</div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://contratos-facilita-cell.netlify.app/" target="_blank"
+           style="--card-color:#66bb6a;--card-bg:rgba(102,187,106,.1)" data-name="contratos documentos assinatura jurídico">
+          <div class="card-head">
+            <div class="card-ico">📝</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Contratos</div>
+            <div class="card-desc">Criação, assinatura e acompanhamento de contratos e documentos legais</div>
+          </div>
+          <div class="card-tag" style="background:rgba(102,187,106,.1);color:#66bb6a">Jurídico</div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/contratosfuncionariosfacilita/" target="_blank"
+           style="--card-color:#42a5f5;--card-bg:rgba(66,165,245,.1)" data-name="contratos funcionários CLT trabalhista">
+          <div class="card-head">
+            <div class="card-ico">🤝</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Contratos Funcionários</div>
+            <div class="card-desc">Gestão de contratos trabalhistas e documentação de colaboradores</div>
+          </div>
+          <div class="card-tag" style="background:rgba(66,165,245,.1);color:#42a5f5">CLT</div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/consultacpf/" target="_blank"
+           style="--card-color:#ec407a;--card-bg:rgba(236,64,122,.1)" data-name="consulta cpf verificação cadastro cliente">
+          <div class="card-head">
+            <div class="card-ico">🔐</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Consulta CPF</div>
+            <div class="card-desc">Verificação e consulta de CPF para cadastro de clientes e funcionários</div>
+          </div>
+          <div class="card-tag" style="background:rgba(236,64,122,.1);color:#ec407a">Consulta</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- MARKETING & OPERAÇÕES -->
+    <div class="cat-section" data-cat="marketing">
+      <div class="cat-label">🚀 Marketing & Operações</div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/SORTEIOFACILITACELL/" target="_blank"
+           style="--card-color:#ab47bc;--card-bg:rgba(171,71,188,.1)" data-name="sorteio promoção marketing campanha">
+          <div class="card-head">
+            <div class="card-ico">🎰</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Sorteio Facilita Cell</div>
+            <div class="card-desc">Sistema de sorteios e campanhas promocionais para clientes</div>
+          </div>
+          <div class="card-tag" style="background:rgba(171,71,188,.1);color:#ab47bc">Promoção</div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/colaboradores/" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.1)" data-name="hub central sistemas colaboradores">
+          <div class="card-head">
+            <div class="card-ico">🏠</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Hub Colaboradores</div>
+            <div class="card-desc">Central de acesso aos sistemas internos para colaboradores</div>
+          </div>
+          <div class="card-tag">Hub</div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/" target="_blank"
+           style="--card-color:#26c6da;--card-bg:rgba(38,198,218,.1)" data-name="site facilita cell principal home">
+          <div class="card-head">
+            <div class="card-ico">🌐</div>
+            <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </div>
+          <div>
+            <div class="card-name">Site Facilita Cell</div>
+            <div class="card-desc">Portal principal da Facilita Cell com informações institucionais</div>
+          </div>
+          <div class="card-tag" style="background:rgba(38,198,218,.1);color:#26c6da">Site</div>
+        </a>
+
+      </div>
+    </div>
+
+  </div><!-- /hub-body -->
+</div><!-- /hub-screen -->
+
+<script>
+const CRED = { u: '03818244200', p: '218939' };
+
+function doLogin() {
+  const u = document.getElementById('fu').value.trim();
+  const p = document.getElementById('fp').value.trim();
+  const e = document.getElementById('err');
+  const btn = document.getElementById('btnLogin');
+
+  if (u === CRED.u && p === CRED.p) {
+    e.classList.remove('on');
+    btn.disabled = true;
+    btn.textContent = '✓ Acesso autorizado';
+    btn.style.background = 'linear-gradient(135deg,#00c853,#00e676)';
+
+    setTimeout(() => {
+      const ls = document.getElementById('login-screen');
+      const hs = document.getElementById('hub-screen');
+      ls.classList.add('hiding');
+      hs.style.display = 'flex';
+      void hs.offsetWidth;
+      hs.classList.add('visible');
+      setTimeout(() => { ls.style.display = 'none'; }, 500);
+    }, 700);
+
+  } else {
+    e.classList.add('on');
+    document.getElementById('fp').value = '';
+    document.getElementById('fp').focus();
+    // Shake
+    const fw = document.getElementById('fp').closest('.fw');
+    fw.style.animation = 'none';
+    fw.style.borderColor = '#f87';
+    setTimeout(() => { fw.style.borderColor = ''; }, 1200);
+  }
+}
+
+function doLogout() {
+  const ls = document.getElementById('login-screen');
+  const hs = document.getElementById('hub-screen');
+  hs.classList.remove('visible');
+  setTimeout(() => {
+    hs.style.display = 'none';
+    ls.style.display = 'flex';
+    ls.classList.remove('hiding');
+    document.getElementById('fu').value = '';
+    document.getElementById('fp').value = '';
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = false;
+    btn.textContent = 'Entrar no sistema';
+    btn.style.background = '';
+  }, 500);
+}
+
+function toggleEye(btn) {
+  const inp = document.getElementById('fp');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.color = show ? 'var(--orange)' : '';
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.sys-card').forEach(card => {
+    const name = (card.dataset.name || '') + card.querySelector('.card-name').textContent.toLowerCase();
+    card.style.display = name.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('.sys-card')].some(c => c.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+}
+
+// Clock
+function tick() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const d = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const el = document.getElementById('hubClock');
+  const sd = document.getElementById('statDate');
+  if (el) el.textContent = t;
+  if (sd) sd.textContent = d;
+}
+tick();
+setInterval(tick, 1000);
+
+// Enter key
+document.getElementById('fu').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('fp').focus(); });
+document.getElementById('fp').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>
