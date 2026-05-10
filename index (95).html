@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilita Cell — Hub de Sistemas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF6500;
+  --orange2: #FF8C00;
+  --bg: #060609;
+  --surface: #0D0D14;
+  --surface2: #111119;
+  --surface3: #16161F;
+  --line: rgba(255,255,255,.06);
+  --line2: rgba(255,255,255,.04);
+  --txt: #F0EEF8;
+  --txt2: #8080A8;
+  --txt3: #50507080;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt)}
+
+/* ─── LOGIN ─────────────────────────── */
+#login-screen{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:stretch;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.4,0,.2,1);
+}
+#login-screen.hiding{opacity:0;transform:translateY(-12px) scale(.98);pointer-events:none}
+
+.l-panel{
+  width:430px;flex-shrink:0;
+  background:var(--surface);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 52px;
+  border-right:1px solid var(--line);
+  position:relative;z-index:2;
+}
+.l-panel::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,101,0,.1) 0%,transparent 65%);pointer-events:none}
+.l-panel::after{content:'';position:absolute;bottom:-80px;left:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(100,60,200,.07) 0%,transparent 65%);pointer-events:none}
+
+.l-visual{flex:1;position:relative;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+.l-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 65% 35%,rgba(255,101,0,.08) 0%,transparent 55%),radial-gradient(ellipse 45% 55% at 25% 75%,rgba(80,50,180,.06) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,160,200,.04) 0%,transparent 55%);animation:meshAnim 12s ease-in-out infinite alternate;}
+@keyframes meshAnim{to{background:radial-gradient(ellipse 55% 45% at 35% 65%,rgba(255,101,0,.1) 0%,transparent 55%),radial-gradient(ellipse 45% 55% at 75% 25%,rgba(80,50,180,.07) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 20% 20%,rgba(0,160,200,.05) 0%,transparent 55%);}}
+.l-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);}
+.l-center{position:relative;z-index:2;text-align:center}
+
+.l-orbit{width:130px;height:130px;margin:0 auto 44px;position:relative;}
+.l-orbit-ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,101,0,.2);animation:spin 20s linear infinite;}
+.l-orbit-ring::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange);top:-4px;left:50%;margin-left:-4px;}
+.l-orbit-ring:nth-child(2){inset:18px;border-color:rgba(255,101,0,.13);animation:spin 14s linear infinite reverse}
+.l-orbit-ring:nth-child(2)::after{width:6px;height:6px;top:-3px;margin-left:-3px;background:#FF8C00;box-shadow:0 0 8px #FF8C00}
+@keyframes spin{to{transform:rotate(360deg)}}
+.l-logo-core{position:absolute;inset:24px;background:linear-gradient(135deg,rgba(255,101,0,.18),rgba(255,101,0,.04));border:1.5px solid rgba(255,101,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--orange);box-shadow:0 0 50px rgba(255,101,0,.12),inset 0 0 30px rgba(255,101,0,.05);animation:logoFloat 6s ease-in-out infinite;}
+@keyframes logoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.02)}}
+
+.l-title{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1.1;margin-bottom:8px}
+.l-title span{display:block;background:linear-gradient(90deg,#FF6500,#FFB347);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.l-subtitle{font-size:13px;color:var(--txt2);margin-bottom:40px;font-weight:400}
+.l-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:340px;margin:0 auto}
+.l-chip{padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);color:var(--txt2);letter-spacing:.3px;}
+
+/* form */
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:42px;animation:fadeUp .5s ease both}
+.brand-mark{width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,rgba(255,101,0,.22),rgba(255,101,0,.06));border:1.5px solid rgba(255,101,0,.3);display:flex;align-items:center;justify-content:center;color:var(--orange);box-shadow:0 4px 24px rgba(255,101,0,.12);}
+.brand-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--txt2);display:block;margin-bottom:3px}
+.brand-name{display:flex;gap:5px;align-items:baseline}
+.brand-n1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.brand-n2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--orange)}
+
+.form-head{margin-bottom:28px;animation:fadeUp .5s .1s ease both}
+.form-head h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.4px;margin-bottom:5px}
+.form-head p{font-size:13px;color:var(--txt2)}
+.form-rule{width:36px;height:2px;background:linear-gradient(90deg,var(--orange),transparent);border-radius:2px;margin-bottom:28px;animation:fadeUp .5s .15s ease both}
+
+.field{margin-bottom:14px;animation:fadeUp .5s ease both}
+.field:nth-child(1){animation-delay:.2s}.field:nth-child(2){animation-delay:.26s}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--txt2);margin-bottom:7px}
+.finput{display:flex;align-items:center;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:0 16px;transition:border-color .25s,box-shadow .25s,background .25s;}
+.finput:focus-within{border-color:rgba(255,101,0,.5);background:rgba(255,101,0,.04);box-shadow:0 0 0 3px rgba(255,101,0,.07),0 4px 20px rgba(0,0,0,.3)}
+.finput .ico{color:var(--orange);display:flex;align-items:center;flex-shrink:0;margin-right:12px;opacity:.65}
+.finput input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:13px 0}
+.finput input::placeholder{color:#2e2e44}
+.eye-btn{background:none;border:none;cursor:pointer;color:#2e2e44;display:flex;padding:0;transition:color .2s}
+.eye-btn:hover{color:var(--orange)}
+
+.forgot{display:flex;justify-content:flex-end;margin:-2px 0 22px;animation:fadeUp .5s .3s ease both}
+.forgot a{font-size:12px;color:var(--orange);text-decoration:none;opacity:.6;font-weight:600;transition:opacity .2s}
+.forgot a:hover{opacity:1}
+
+.btn-enter{width:100%;height:52px;background:linear-gradient(135deg,#FF6500 0%,#FF9500 100%);border:none;border-radius:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 32px rgba(255,101,0,.38),inset 0 1px 0 rgba(255,255,255,.18);transition:transform .18s,box-shadow .2s;animation:fadeUp .5s .35s ease both;position:relative;overflow:hidden;}
+.btn-enter::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,transparent 55%);border-radius:12px}
+.btn-enter:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(255,101,0,.52)}
+.btn-enter:active{transform:scale(.98)}
+.btn-enter:disabled{opacity:.7;cursor:not-allowed}
+.form-err{display:none;margin-top:10px;padding:9px 14px;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#fca5a5;font-size:12.5px;text-align:center;font-weight:500}
+.form-err.on{display:block}
+.form-foot{margin-top:30px;display:flex;align-items:center;gap:8px;color:#2a2a40;font-size:11px;animation:fadeUp .5s .4s ease both}
+.form-foot svg{color:rgba(255,101,0,.25);flex-shrink:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── HUB SCREEN ─────────────────────── */
+#hub-screen{position:fixed;inset:0;z-index:100;display:none;opacity:0;flex-direction:column;overflow:hidden;background:var(--bg);transition:opacity .5s ease;}
+#hub-screen.visible{opacity:1}
+
+.topbar{height:56px;flex-shrink:0;background:rgba(10,10,18,.92);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:14px;position:relative;z-index:10;}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-icon{width:34px;height:34px;background:linear-gradient(135deg,rgba(255,101,0,.2),rgba(255,101,0,.05));border:1px solid rgba(255,101,0,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--orange);}
+.tb-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.tb-name em{color:var(--orange);font-style:normal}
+.tb-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.tb-sub{font-size:11.5px;color:var(--txt2);font-weight:500}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tb-clock{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--orange);letter-spacing:1px;background:rgba(255,101,0,.08);border:1px solid rgba(255,101,0,.14);border-radius:8px;padding:4px 10px;}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(255,101,0,.22),rgba(255,101,0,.07));border:1.5px solid rgba(255,101,0,.3);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--orange);}
+.tb-user{font-size:12.5px;font-weight:600;color:var(--txt2)}
+.tb-logout{background:none;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--txt2);font-size:11.5px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.tb-logout:hover{color:#fca5a5;border-color:rgba(252,165,165,.2);background:rgba(252,165,165,.05)}
+
+.hub-header{padding:22px 24px 0;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;}
+.hub-greet{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.hub-greet em{color:var(--orange);font-style:normal}
+.hub-sub2{font-size:12.5px;color:var(--txt2);margin-top:3px}
+.searchbox{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:0 14px;min-width:250px;transition:border-color .2s,box-shadow .2s;}
+.searchbox:focus-within{border-color:rgba(255,101,0,.35);box-shadow:0 0 0 3px rgba(255,101,0,.06)}
+.searchbox input{background:none;border:none;outline:none;color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:10px 0;width:100%}
+.searchbox input::placeholder{color:#2a2a40}
+.searchbox svg{color:#2a2a40;flex-shrink:0}
+
+.hub-stats{display:flex;gap:8px;padding:14px 24px 0;flex-shrink:0}
+.stat{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:7px 14px;}
+.stat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#fff}
+.stat-lbl{font-size:11px;color:var(--txt2)}
+
+.hub-body{flex:1;overflow-y:auto;padding:18px 24px 40px;display:flex;flex-direction:column;gap:24px;}
+.hub-body::-webkit-scrollbar{width:4px}
+.hub-body::-webkit-scrollbar-track{background:transparent}
+.hub-body::-webkit-scrollbar-thumb{background:#1c1c2e;border-radius:2px}
+
+.cat-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cat-icon{width:26px;height:26px;border-radius:7px;background:var(--surface3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.cat-name{font-size:9.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--txt2)}
+.cat-line{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* ══════════════════════════════════════
+   ULTRA-PREMIUM CARDS — REDESIGNED
+══════════════════════════════════════ */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+
+.sys-card{
+  display:flex;flex-direction:column;
+  text-decoration:none;color:inherit;
+  border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);
+  background:var(--surface2);
+  position:relative;
+  transition:transform .32s cubic-bezier(.34,1.5,.64,1),box-shadow .32s ease,border-color .32s ease;
+  cursor:pointer;
+  isolation:isolate;
+}
+.sys-card::before{
+  content:'';position:absolute;inset:0;z-index:0;
+  background:linear-gradient(160deg,rgba(255,255,255,.025) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s ease;border-radius:20px;
+}
+.sys-card:hover::before{opacity:1}
+.sys-card:hover{
+  transform:translateY(-7px) scale(1.015);
+  border-color:rgba(var(--card-rgb,255,101,0),.28);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.65),
+    0 0 0 1px rgba(var(--card-rgb,255,101,0),.12),
+    0 0 40px -10px rgba(var(--card-rgb,255,101,0),.22);
+}
+
+/* ── COVER SHELL ── */
+.card-cover{
+  height:108px;position:relative;overflow:hidden;flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.card-cover::after{
+  content:'';position:absolute;inset:0;z-index:4;
+  background:linear-gradient(to bottom,transparent 30%,var(--surface2) 100%);
+}
+.cover-art{position:absolute;inset:0;z-index:1;}
+.cover-glow{position:absolute;z-index:2;border-radius:50%;pointer-events:none;}
+.cover-grid{position:absolute;inset:0;z-index:1;}
+.cover-label{
+  position:absolute;bottom:0;left:0;right:0;z-index:5;
+  padding:6px 14px 10px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.18);
+  background:transparent;
+  transition:color .25s;
+}
+.sys-card:hover .cover-label{color:rgba(var(--card-rgb,255,101,0),.55)}
+
+/* shine sweep on hover */
+.card-cover::before{
+  content:'';position:absolute;inset:-100%;z-index:6;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.06) 50%,transparent 60%);
+  transition:inset .55s ease;
+}
+.sys-card:hover .card-cover::before{inset:0 -100% 0 100%;}
+
+/* ── UNIQUE COVERS ── */
+
+/* FinanCred – circuit board orange */
+.cover-financred{background:linear-gradient(145deg,#0f0500,#1e0c00,#2d1500)}
+.cover-financred .cover-art{
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(255,101,0,.055) 19px,rgba(255,101,0,.055) 20px),
+    repeating-linear-gradient(90deg,transparent,transparent 19px,rgba(255,101,0,.055) 19px,rgba(255,101,0,.055) 20px);
+}
+.cover-financred .cover-glow{width:120px;height:120px;top:-30px;right:-10px;
+  background:radial-gradient(circle,rgba(255,101,0,.38) 0%,rgba(255,60,0,.12) 40%,transparent 70%);}
+.cover-financred .cover-glow:nth-child(3){width:60px;height:60px;top:auto;right:auto;bottom:-10px;left:20px;
+  background:radial-gradient(circle,rgba(255,140,0,.22) 0%,transparent 65%);}
+
+/* LucroCell – gold ascending bars */
+.cover-lucrocell{background:linear-gradient(145deg,#0c0800,#1c1200,#2a1a00)}
+.cover-lucrocell .cover-art{
+  background:
+    repeating-linear-gradient(65deg,transparent,transparent 13px,rgba(245,158,11,.07) 13px,rgba(245,158,11,.07) 14px),
+    linear-gradient(180deg,transparent 0%,rgba(245,158,11,.04) 100%);
+}
+.cover-lucrocell .cover-glow{width:110px;height:110px;bottom:-30px;right:-5px;
+  background:radial-gradient(circle,rgba(245,158,11,.35) 0%,rgba(234,120,0,.1) 45%,transparent 68%);}
+
+/* Calculadora – green data matrix */
+.cover-calc{background:linear-gradient(145deg,#001205,#001a08,#00240f)}
+.cover-calc .cover-art{
+  background-image:radial-gradient(circle,rgba(74,222,128,.26) 1px,transparent 1px);
+  background-size:13px 13px;
+}
+.cover-calc .cover-glow{width:130px;height:60px;top:10px;left:-15px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(74,222,128,.18) 0%,transparent 65%);}
+
+/* PayMobi – purple signal waves */
+.cover-paymobi{background:linear-gradient(145deg,#080015,#12002a,#1a003a)}
+.cover-paymobi .cover-art{
+  background:
+    repeating-conic-gradient(from 0deg at 80% 60%,transparent 0deg,transparent 22deg,rgba(192,132,252,.055) 22deg,rgba(192,132,252,.055) 23deg),
+    repeating-linear-gradient(-40deg,transparent,transparent 11px,rgba(192,132,252,.04) 11px,rgba(192,132,252,.04) 12px);
+}
+.cover-paymobi .cover-glow{width:140px;height:140px;top:-50px;left:-20px;
+  background:radial-gradient(circle,rgba(192,132,252,.3) 0%,rgba(120,60,240,.08) 50%,transparent 68%);}
+
+/* PayJoy – cyan scan beam */
+.cover-payjoy{background:linear-gradient(145deg,#001318,#001e28,#002535)}
+.cover-payjoy .cover-art{
+  background:
+    repeating-linear-gradient(90deg,transparent,transparent 22px,rgba(34,211,238,.05) 22px,rgba(34,211,238,.05) 23px),
+    repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(34,211,238,.03) 44px,rgba(34,211,238,.03) 45px);
+}
+.cover-payjoy .cover-glow{width:150px;height:80px;top:0;right:-20px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(34,211,238,.28) 0%,rgba(0,200,220,.08) 50%,transparent 68%);}
+
+/* Portal – blue aurora */
+.cover-portal{background:linear-gradient(145deg,#000a20,#001235,#001848)}
+.cover-portal .cover-art{
+  background:
+    radial-gradient(ellipse 85% 60% at 80% 20%,rgba(96,165,250,.22) 0%,transparent 55%),
+    repeating-linear-gradient(0deg,transparent,transparent 24px,rgba(96,165,250,.04) 24px,rgba(96,165,250,.04) 25px);
+}
+.cover-portal .cover-glow{width:90px;height:90px;bottom:-20px;left:10px;
+  background:radial-gradient(circle,rgba(59,130,246,.2) 0%,transparent 65%);}
+
+/* RH Digital – coral pulse rings */
+.cover-rh{background:linear-gradient(145deg,#130006,#200010,#2c0018)}
+.cover-rh .cover-art{
+  background:
+    radial-gradient(circle at 78% 50%,rgba(248,113,113,.16) 0%,rgba(248,113,113,.08) 24%,transparent 25%),
+    radial-gradient(circle at 78% 50%,transparent 30%,rgba(248,113,113,.06) 31%,transparent 32%),
+    radial-gradient(circle at 78% 50%,transparent 46%,rgba(248,113,113,.04) 47%,transparent 48%),
+    repeating-conic-gradient(from 0deg at 78% 50%,transparent 0deg,transparent 30deg,rgba(248,113,113,.03) 30deg,rgba(248,113,113,.03) 31deg);
+}
+.cover-rh .cover-glow{width:100px;height:100px;top:-20px;right:10px;
+  background:radial-gradient(circle,rgba(248,113,113,.3) 0%,rgba(220,60,80,.08) 45%,transparent 68%);}
+
+/* Recrutamento – target crosshair */
+.cover-recrut{background:linear-gradient(145deg,#130600,#1e0d00,#2c1400)}
+.cover-recrut .cover-art{
+  background:
+    radial-gradient(circle at 72% 50%,rgba(255,101,0,.2) 0%,rgba(255,101,0,.12) 15%,transparent 16%),
+    radial-gradient(circle at 72% 50%,transparent 22%,rgba(255,101,0,.09) 23%,transparent 24%),
+    radial-gradient(circle at 72% 50%,transparent 35%,rgba(255,101,0,.06) 36%,transparent 37%),
+    radial-gradient(circle at 72% 50%,transparent 50%,rgba(255,101,0,.04) 51%,transparent 52%);
+}
+.cover-recrut .cover-glow{width:80px;height:80px;top:14px;right:40px;
+  background:radial-gradient(circle,rgba(255,101,0,.28) 0%,transparent 65%);}
+
+/* Fase 1 – amber progress bars */
+.cover-fase1{background:linear-gradient(145deg,#0e0600,#1a0e00,#241600)}
+.cover-fase1 .cover-art{
+  background:
+    linear-gradient(90deg,rgba(251,146,60,.16) 0%,transparent 60%),
+    repeating-linear-gradient(90deg,transparent,transparent 30px,rgba(251,146,60,.04) 30px,rgba(251,146,60,.04) 31px);
+}
+.cover-fase1 .cover-glow{width:70px;height:70px;bottom:-10px;right:10px;
+  background:radial-gradient(circle,rgba(251,146,60,.22) 0%,transparent 65%);}
+
+/* Contratos – green legal paper */
+.cover-contratos{background:linear-gradient(145deg,#001208,#001c10,#002416)}
+.cover-contratos .cover-art{
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 11px,rgba(74,222,128,.055) 11px,rgba(74,222,128,.055) 12px),
+    linear-gradient(130deg,rgba(74,222,128,.1) 0%,transparent 55%);
+}
+.cover-contratos .cover-glow{width:100px;height:50px;top:15px;right:-5px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(74,222,128,.2) 0%,transparent 65%);}
+
+/* Contratos CLT – blue blueprint */
+.cover-clt{background:linear-gradient(145deg,#000815,#001020,#00162e)}
+.cover-clt .cover-art{
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 20px,rgba(96,165,250,.055) 20px,rgba(96,165,250,.055) 21px),
+    repeating-linear-gradient(90deg,transparent,transparent 20px,rgba(96,165,250,.055) 20px,rgba(96,165,250,.055) 21px);
+}
+.cover-clt .cover-glow{width:90px;height:90px;top:-15px;right:15px;
+  background:radial-gradient(circle,rgba(96,165,250,.26) 0%,rgba(30,80,200,.08) 50%,transparent 68%);}
+
+/* Consulta CPF – pink iris scan */
+.cover-cpf{background:linear-gradient(145deg,#14000c,#200012,#2a0018)}
+.cover-cpf .cover-art{
+  background:
+    radial-gradient(ellipse 75% 70% at 32% 50%,rgba(244,114,182,.2) 0%,transparent 55%),
+    repeating-linear-gradient(-55deg,transparent,transparent 13px,rgba(244,114,182,.05) 13px,rgba(244,114,182,.05) 14px);
+}
+.cover-cpf .cover-glow{width:90px;height:90px;top:5px;left:10px;
+  background:radial-gradient(circle,rgba(244,114,182,.28) 0%,transparent 65%);}
+
+/* Sorteio – animated aurora */
+.cover-sorteio{background:linear-gradient(145deg,#0e0018,#160022,#1e002e)}
+.cover-sorteio .cover-art{
+  background:
+    radial-gradient(circle at 25% 50%,rgba(167,139,250,.26) 0%,transparent 48%),
+    radial-gradient(circle at 75% 50%,rgba(244,114,182,.18) 0%,transparent 48%);
+  animation:sorteioAurora 4s ease-in-out infinite alternate;
+}
+@keyframes sorteioAurora{
+  0%{background:radial-gradient(circle at 25% 50%,rgba(167,139,250,.26) 0%,transparent 48%),radial-gradient(circle at 75% 50%,rgba(244,114,182,.18) 0%,transparent 48%);}
+  100%{background:radial-gradient(circle at 75% 50%,rgba(167,139,250,.26) 0%,transparent 48%),radial-gradient(circle at 25% 50%,rgba(244,114,182,.18) 0%,transparent 48%);}
+}
+.cover-sorteio .cover-glow{width:60px;height:60px;top:10px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(200,160,255,.22) 0%,transparent 65%);}
+
+/* Hub – radial starburst */
+.cover-hub{background:linear-gradient(145deg,#130500,#1e0c00,#2a1200)}
+.cover-hub .cover-art{
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,101,0,.18) 0%,transparent 48%),
+    repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg,transparent 16deg,rgba(255,101,0,.042) 16deg,rgba(255,101,0,.042) 17deg);
+}
+.cover-hub .cover-glow{width:70px;height:70px;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(255,101,0,.32) 0%,transparent 65%);}
+
+/* Site – teal globe grid */
+.cover-site{background:linear-gradient(145deg,#001318,#001c22,#00252e)}
+.cover-site .cover-art{
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 50%,rgba(34,211,238,.14) 0%,transparent 55%),
+    repeating-linear-gradient(0deg,transparent,transparent 20px,rgba(34,211,238,.04) 20px,rgba(34,211,238,.04) 21px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(34,211,238,.04) 40px,rgba(34,211,238,.04) 41px);
+}
+.cover-site .cover-glow{width:120px;height:60px;top:10px;left:50%;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(ellipse,rgba(34,211,238,.22) 0%,transparent 65%);}
+
+.cover-bar{position:absolute;z-index:3;height:2.5px;width:62%;top:36px;left:12px;
+  background:linear-gradient(90deg,rgba(251,146,60,.75),rgba(255,180,80,.2),transparent);
+  border-radius:2px;box-shadow:0 0 10px rgba(251,146,60,.5);}
+
+/* ── CARD CONTENT ── */
+.card-content{
+  padding:14px 16px 16px;
+  display:flex;flex-direction:column;gap:9px;flex:1;
+  position:relative;z-index:1;
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.card-icon-badge{
+  width:42px;height:42px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  background:var(--card-ibg,rgba(255,255,255,.07));
+  border:1px solid var(--card-iborder,rgba(255,255,255,.1));
+  margin-top:-32px;
+  position:relative;z-index:10;
+  box-shadow:0 6px 20px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05);
+  transition:transform .32s cubic-bezier(.34,1.5,.64,1),box-shadow .32s;
+  backdrop-filter:blur(8px);
+}
+.sys-card:hover .card-icon-badge{
+  transform:scale(1.12) translateY(-3px);
+  box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 14px rgba(var(--card-rgb,255,101,0),.3);
+}
+
+.card-arrow-ico{
+  color:rgba(255,255,255,.1);flex-shrink:0;margin-top:4px;
+  transition:color .25s,transform .25s;
+}
+.sys-card:hover .card-arrow-ico{color:var(--card-accent,var(--orange));transform:translate(3px,-3px)}
+
+.card-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14.5px;font-weight:700;
+  color:#D8D5EF;line-height:1.25;letter-spacing:-.25px;
+  transition:color .25s;
+}
+.sys-card:hover .card-name{color:#fff}
+
+.card-desc{
+  font-size:11.5px;color:var(--txt2);
+  line-height:1.6;font-weight:400;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+.card-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--card-tagbg,rgba(255,255,255,.05));
+  color:var(--card-accent,var(--orange));
+  border:1px solid var(--card-tagborder,rgba(255,255,255,.07));
+  font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+  padding:3px 10px;border-radius:100px;width:fit-content;
+}
+.card-tag::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:currentColor;opacity:.7;flex-shrink:0;
+}
+.card-status{
+  font-size:9px;font-weight:600;color:rgba(74,222,128,.5);
+  letter-spacing:.5px;opacity:0;
+  transition:opacity .25s;
+}
+.sys-card:hover .card-status{opacity:1}
+
+@media(max-width:700px){
+  .l-panel{width:100%;padding:40px 28px 52px}
+  .l-visual{display:none}
+  html,body{overflow:auto;height:auto}
+  #login-screen{position:relative;flex-direction:column;min-height:100vh}
+  .topbar{padding:0 14px}
+  .hub-header,.hub-stats,.hub-body{padding-left:14px;padding-right:14px}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ LOGIN ════════ -->
+<div id="login-screen">
+  <div class="l-panel">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".15"/>
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-label">Plataforma Integrada</span>
+        <div class="brand-name"><span class="brand-n1">FACILITA</span><span class="brand-n2">CELL</span></div>
+      </div>
+    </div>
+    <div class="form-head"><h2>Bem-vindo de volta</h2><p>Entre com suas credenciais para acessar</p></div>
+    <div class="form-rule"></div>
+    <div class="field">
+      <label>Usuário</label>
+      <div class="finput">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <input id="fu" type="text" placeholder="Digite seu usuário" autocomplete="username"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <div class="finput">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input id="fp" type="password" placeholder="Digite sua senha" autocomplete="current-password"/>
+        <button class="eye-btn" onclick="toggleEye(this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+    </div>
+    <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+    <button class="btn-enter" id="btnLogin" onclick="doLogin()">Acessar o Sistema</button>
+    <div class="form-err" id="err">Credenciais inválidas. Tente novamente.</div>
+    <div class="form-foot">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Acesso protegido · Facilita Cell © 2025
+    </div>
+  </div>
+
+  <div class="l-visual">
+    <div class="l-mesh"></div>
+    <div class="l-dots"></div>
+    <div class="l-center">
+      <div class="l-orbit">
+        <div class="l-orbit-ring"></div>
+        <div class="l-orbit-ring"></div>
+        <div class="l-logo-core">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".2"/>
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+            <path d="M9 12l2 2 4-4" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="l-title">Hub Central de<span>Facilita Cell</span></div>
+      <div class="l-subtitle">Todos os sistemas em um só lugar</div>
+      <div class="l-chips">
+        <div class="l-chip">💳 Financeiro</div>
+        <div class="l-chip">👥 RH</div>
+        <div class="l-chip">📄 Contratos</div>
+        <div class="l-chip">🎯 Vendas</div>
+        <div class="l-chip">🚀 Marketing</div>
+        <div class="l-chip">🔐 Compliance</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ HUB ════════ -->
+<div id="hub-screen">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div class="tb-name">FACILITA <em>CELL</em></div>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-sub">Hub de Sistemas</div>
+    <div class="tb-right">
+      <div class="tb-clock" id="hubClock">00:00</div>
+      <div class="tb-avatar">FC</div>
+      <div class="tb-user">Administrador</div>
+      <button class="tb-logout" onclick="doLogout()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <div class="hub-header">
+    <div>
+      <div class="hub-greet">Olá, <em>Facilita Cell</em> 👋</div>
+      <div class="hub-sub2">Selecione um sistema para acessar</div>
+    </div>
+    <div class="searchbox">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar sistema..." id="searchInput" oninput="filterCards()"/>
+    </div>
+  </div>
+
+  <div class="hub-stats">
+    <div class="stat">
+      <div class="stat-dot" style="background:var(--orange);box-shadow:0 0 8px rgba(255,101,0,.6)"></div>
+      <div class="stat-val">15</div><div class="stat-lbl">Sistemas ativos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-dot" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.5)"></div>
+      <div class="stat-val" style="color:#4ade80">Online</div><div class="stat-lbl">Status geral</div>
+    </div>
+    <div class="stat">
+      <div class="stat-dot" style="background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.5)"></div>
+      <div class="stat-val" id="statDate" style="color:#60a5fa">--/--</div><div class="stat-lbl">Data atual</div>
+    </div>
+  </div>
+
+  <div class="hub-body" id="hubBody">
+
+    <!-- ── FINANCEIRO & CRÉDITO ── -->
+    <div class="cat-section" data-cat="financeiro">
+      <div class="cat-hd"><div class="cat-icon">💰</div><span class="cat-name">Financeiro &amp; Crédito</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://financred-facilitacell.netlify.app" target="_blank"
+           style="--card-accent:#FF6500;--card-ibg:rgba(255,101,0,.15);--card-iborder:rgba(255,101,0,.25);--card-tagbg:rgba(255,101,0,.1);--card-tagborder:rgba(255,101,0,.15);--card-rgb:255,101,0"
+           data-name="financred financiamento crédito celulares">
+          <div class="card-cover cover-financred"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">💳</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">FinanCred</div>
+            <div class="card-desc">Financiamento inteligente de celulares com aprovação automatizada</div>
+            <div class="card-footer"><div class="card-tag">Financiamento</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/LUCROCELL/" target="_blank"
+           style="--card-accent:#F59E0B;--card-ibg:rgba(245,158,11,.15);--card-iborder:rgba(245,158,11,.25);--card-tagbg:rgba(245,158,11,.1);--card-tagborder:rgba(245,158,11,.15);--card-rgb:245,158,11"
+           data-name="lucrocell lucro controladoria precificação margem">
+          <div class="card-cover cover-lucrocell"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📈</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">LucroCell</div>
+            <div class="card-desc">Controladoria, precificação e análise de margem de lucro</div>
+            <div class="card-footer"><div class="card-tag">Controladoria</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://salario-comissao-calculadora.netlify.app" target="_blank"
+           style="--card-accent:#4ADE80;--card-ibg:rgba(74,222,128,.12);--card-iborder:rgba(74,222,128,.22);--card-tagbg:rgba(74,222,128,.08);--card-tagborder:rgba(74,222,128,.14);--card-rgb:74,222,128"
+           data-name="salário comissão calculadora folha pagamento">
+          <div class="card-cover cover-calc"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🧮</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Calculadora Salário</div>
+            <div class="card-desc">Cálculo de salários, comissões e remuneração variável da equipe</div>
+            <div class="card-footer"><div class="card-tag">Comissões</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/simuladorpaymobi/" target="_blank"
+           style="--card-accent:#C084FC;--card-ibg:rgba(192,132,252,.12);--card-iborder:rgba(192,132,252,.22);--card-tagbg:rgba(192,132,252,.08);--card-tagborder:rgba(192,132,252,.14);--card-rgb:192,132,252"
+           data-name="simulador paymobi pagamento parcelas">
+          <div class="card-cover cover-paymobi"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📱</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Simulador PayMobi</div>
+            <div class="card-desc">Simulação de parcelamentos e condições de pagamento PayMobi</div>
+            <div class="card-footer"><div class="card-tag">Simulador</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/consultapayjoy/" target="_blank"
+           style="--card-accent:#22D3EE;--card-ibg:rgba(34,211,238,.12);--card-iborder:rgba(34,211,238,.22);--card-tagbg:rgba(34,211,238,.08);--card-tagborder:rgba(34,211,238,.14);--card-rgb:34,211,238"
+           data-name="consulta payjoy financeira crédito">
+          <div class="card-cover cover-payjoy"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🔍</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Consulta PayJoy</div>
+            <div class="card-desc">Consulta de status e informações de financiamentos PayJoy</div>
+            <div class="card-footer"><div class="card-tag">Consulta</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── RH & COLABORADORES ── -->
+    <div class="cat-section" data-cat="rh">
+      <div class="cat-hd"><div class="cat-icon">👥</div><span class="cat-name">RH &amp; Colaboradores</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/portal/" target="_blank"
+           style="--card-accent:#60A5FA;--card-ibg:rgba(96,165,250,.12);--card-iborder:rgba(96,165,250,.22);--card-tagbg:rgba(96,165,250,.08);--card-tagborder:rgba(96,165,250,.14);--card-rgb:96,165,250"
+           data-name="portal colaborador funcionário documentos benefícios">
+          <div class="card-cover cover-portal"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">👤</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Portal do Colaborador</div>
+            <div class="card-desc">Documentos, contracheques, benefícios e informações pessoais</div>
+            <div class="card-footer"><div class="card-tag">Colaborador</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://rhdigitalfacilita-create.github.io/rhdigitalfacilita.github.io/" target="_blank"
+           style="--card-accent:#F87171;--card-ibg:rgba(248,113,113,.12);--card-iborder:rgba(248,113,113,.22);--card-tagbg:rgba(248,113,113,.08);--card-tagborder:rgba(248,113,113,.14);--card-rgb:248,113,113"
+           data-name="rh digital recursos humanos gestão">
+          <div class="card-cover cover-rh"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🏢</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">RH Digital</div>
+            <div class="card-desc">Gestão digital completa de recursos humanos da Facilita Cell</div>
+            <div class="card-footer"><div class="card-tag">RH</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofacilitacell/" target="_blank"
+           style="--card-accent:#FF6500;--card-ibg:rgba(255,101,0,.12);--card-iborder:rgba(255,101,0,.22);--card-tagbg:rgba(255,101,0,.08);--card-tagborder:rgba(255,101,0,.14);--card-rgb:255,101,0"
+           data-name="recrutamento seleção candidatos vagas">
+          <div class="card-cover cover-recrut"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🎯</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Recrutamento</div>
+            <div class="card-desc">Processo seletivo, triagem de candidatos e gestão de vagas</div>
+            <div class="card-footer"><div class="card-tag">Seleção</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofase1/" target="_blank"
+           style="--card-accent:#FB923C;--card-ibg:rgba(251,146,60,.12);--card-iborder:rgba(251,146,60,.22);--card-tagbg:rgba(251,146,60,.08);--card-tagborder:rgba(251,146,60,.14);--card-rgb:251,146,60"
+           data-name="recrutamento fase 1 candidato etapa">
+          <div class="card-cover cover-fase1"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div><div class="cover-bar"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📋</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Recrutamento Fase 1</div>
+            <div class="card-desc">Primeira etapa do processo seletivo e captação de candidatos</div>
+            <div class="card-footer"><div class="card-tag">Fase 1</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── JURÍDICO & CONTRATOS ── -->
+    <div class="cat-section" data-cat="juridico">
+      <div class="cat-hd"><div class="cat-icon">📄</div><span class="cat-name">Jurídico &amp; Contratos</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://contratos-facilita-cell.netlify.app/" target="_blank"
+           style="--card-accent:#4ADE80;--card-ibg:rgba(74,222,128,.12);--card-iborder:rgba(74,222,128,.22);--card-tagbg:rgba(74,222,128,.08);--card-tagborder:rgba(74,222,128,.14);--card-rgb:74,222,128"
+           data-name="contratos documentos assinatura jurídico">
+          <div class="card-cover cover-contratos"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📝</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Contratos</div>
+            <div class="card-desc">Criação, assinatura e acompanhamento de contratos e documentos legais</div>
+            <div class="card-footer"><div class="card-tag">Jurídico</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/contratosfuncionariosfacilita/" target="_blank"
+           style="--card-accent:#60A5FA;--card-ibg:rgba(96,165,250,.12);--card-iborder:rgba(96,165,250,.22);--card-tagbg:rgba(96,165,250,.08);--card-tagborder:rgba(96,165,250,.14);--card-rgb:96,165,250"
+           data-name="contratos funcionários CLT trabalhista">
+          <div class="card-cover cover-clt"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🤝</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Contratos Funcionários</div>
+            <div class="card-desc">Gestão de contratos trabalhistas e documentação de colaboradores</div>
+            <div class="card-footer"><div class="card-tag">CLT</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/consultacpf/" target="_blank"
+           style="--card-accent:#F472B6;--card-ibg:rgba(244,114,182,.12);--card-iborder:rgba(244,114,182,.22);--card-tagbg:rgba(244,114,182,.08);--card-tagborder:rgba(244,114,182,.14);--card-rgb:244,114,182"
+           data-name="consulta cpf verificação cadastro cliente">
+          <div class="card-cover cover-cpf"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🔐</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Consulta CPF</div>
+            <div class="card-desc">Verificação e consulta de CPF para cadastro de clientes e funcionários</div>
+            <div class="card-footer"><div class="card-tag">Consulta</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── MARKETING & OPERAÇÕES ── -->
+    <div class="cat-section" data-cat="marketing">
+      <div class="cat-hd"><div class="cat-icon">🚀</div><span class="cat-name">Marketing &amp; Operações</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/SORTEIOFACILITACELL/" target="_blank"
+           style="--card-accent:#A78BFA;--card-ibg:rgba(167,139,250,.12);--card-iborder:rgba(167,139,250,.22);--card-tagbg:rgba(167,139,250,.08);--card-tagborder:rgba(167,139,250,.14);--card-rgb:167,139,250"
+           data-name="sorteio promoção marketing campanha">
+          <div class="card-cover cover-sorteio"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🎰</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Sorteio Facilita Cell</div>
+            <div class="card-desc">Sistema de sorteios e campanhas promocionais para clientes</div>
+            <div class="card-footer"><div class="card-tag">Promoção</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/colaboradores/" target="_blank"
+           style="--card-accent:#FF6500;--card-ibg:rgba(255,101,0,.12);--card-iborder:rgba(255,101,0,.22);--card-tagbg:rgba(255,101,0,.08);--card-tagborder:rgba(255,101,0,.14);--card-rgb:255,101,0"
+           data-name="hub central sistemas colaboradores">
+          <div class="card-cover cover-hub"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🏠</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Hub Colaboradores</div>
+            <div class="card-desc">Central de acesso aos sistemas internos para colaboradores</div>
+            <div class="card-footer"><div class="card-tag">Hub</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/" target="_blank"
+           style="--card-accent:#22D3EE;--card-ibg:rgba(34,211,238,.12);--card-iborder:rgba(34,211,238,.22);--card-tagbg:rgba(34,211,238,.08);--card-tagborder:rgba(34,211,238,.14);--card-rgb:34,211,238"
+           data-name="site facilita cell principal home">
+          <div class="card-cover cover-site"><div class="cover-art"></div><div class="cover-glow"></div><div class="cover-glow"></div></div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🌐</div>
+              <svg class="card-arrow-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Site Facilita Cell</div>
+            <div class="card-desc">Portal principal da Facilita Cell com informações institucionais</div>
+            <div class="card-footer"><div class="card-tag">Site</div><span class="card-status">ONLINE</span></div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CRED={u:'03818244200',p:'218939'};
+function doLogin(){
+  const u=document.getElementById('fu').value.trim();
+  const p=document.getElementById('fp').value.trim();
+  const e=document.getElementById('err');
+  const btn=document.getElementById('btnLogin');
+  if(u===CRED.u&&p===CRED.p){
+    e.classList.remove('on');btn.disabled=true;
+    btn.textContent='✓ Acesso autorizado';
+    btn.style.background='linear-gradient(135deg,#059669,#10b981)';
+    setTimeout(()=>{
+      const ls=document.getElementById('login-screen');
+      const hs=document.getElementById('hub-screen');
+      ls.classList.add('hiding');hs.style.display='flex';
+      void hs.offsetWidth;hs.classList.add('visible');
+      setTimeout(()=>{ls.style.display='none';},600);
+    },700);
+  }else{
+    e.classList.add('on');
+    document.getElementById('fp').value='';document.getElementById('fp').focus();
+    const fw=document.getElementById('fp').closest('.finput');
+    fw.style.borderColor='rgba(248,113,113,.5)';fw.style.boxShadow='0 0 0 3px rgba(248,113,113,.08)';
+    setTimeout(()=>{fw.style.borderColor='';fw.style.boxShadow='';},1500);
+  }
+}
+function doLogout(){
+  const ls=document.getElementById('login-screen');
+  const hs=document.getElementById('hub-screen');
+  hs.classList.remove('visible');
+  setTimeout(()=>{
+    hs.style.display='none';ls.style.display='flex';ls.classList.remove('hiding');
+    document.getElementById('fu').value='';document.getElementById('fp').value='';
+    const btn=document.getElementById('btnLogin');
+    btn.disabled=false;btn.textContent='Acessar o Sistema';btn.style.background='';
+  },500);
+}
+function toggleEye(btn){const inp=document.getElementById('fp');const show=inp.type==='password';inp.type=show?'text':'password';btn.style.color=show?'var(--orange)':'';}
+function filterCards(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.sys-card').forEach(c=>{
+    const t=(c.dataset.name||'')+c.querySelector('.card-name').textContent.toLowerCase();
+    c.style.display=t.includes(q)?'':'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(s=>{
+    const v=[...s.querySelectorAll('.sys-card')].some(c=>c.style.display!=='none');
+    s.style.display=v?'':'none';
+  });
+}
+function tick(){
+  const now=new Date();
+  const t=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const d=now.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const el=document.getElementById('hubClock');
+  const sd=document.getElementById('statDate');
+  if(el)el.textContent=t;if(sd)sd.textContent=d;
+}
+tick();setInterval(tick,1000);
+document.getElementById('fu').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('fp').focus();});
+document.getElementById('fp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+/* Card entrance stagger */
+const css=document.createElement('style');
+css.textContent=`@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}`;
+document.head.appendChild(css);
+const io=new IntersectionObserver(entries=>{
+  entries.forEach((en,i)=>{
+    if(en.isIntersecting){en.target.style.animation=`cardIn .45s ${i*.04}s cubic-bezier(.34,1.4,.64,1) both`;io.unobserve(en.target);}
+  });
+},{threshold:.05});
+document.querySelectorAll('.sys-card').forEach(c=>io.observe(c));
+</script>
+</body>
+</html>
