@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilita Cell — Hub de Sistemas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF6500;
+  --orange2: #FF8C00;
+  --bg: #060609;
+  --surface: #0D0D14;
+  --surface2: #111119;
+  --surface3: #16161F;
+  --line: rgba(255,255,255,.06);
+  --line2: rgba(255,255,255,.04);
+  --txt: #F0EEF8;
+  --txt2: #8080A8;
+  --txt3: #50507080;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt)}
+
+/* ─── LOGIN ─────────────────────────── */
+#login-screen{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:stretch;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.4,0,.2,1);
+}
+#login-screen.hiding{opacity:0;transform:translateY(-12px) scale(.98);pointer-events:none}
+
+.l-panel{
+  width:430px;flex-shrink:0;
+  background:var(--surface);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 52px;
+  border-right:1px solid var(--line);
+  position:relative;z-index:2;
+}
+.l-panel::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,101,0,.1) 0%,transparent 65%);pointer-events:none}
+.l-panel::after{content:'';position:absolute;bottom:-80px;left:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(100,60,200,.07) 0%,transparent 65%);pointer-events:none}
+
+.l-visual{flex:1;position:relative;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+.l-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 65% 35%,rgba(255,101,0,.08) 0%,transparent 55%),radial-gradient(ellipse 45% 55% at 25% 75%,rgba(80,50,180,.06) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,160,200,.04) 0%,transparent 55%);animation:meshAnim 12s ease-in-out infinite alternate;}
+@keyframes meshAnim{to{background:radial-gradient(ellipse 55% 45% at 35% 65%,rgba(255,101,0,.1) 0%,transparent 55%),radial-gradient(ellipse 45% 55% at 75% 25%,rgba(80,50,180,.07) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 20% 20%,rgba(0,160,200,.05) 0%,transparent 55%);}}
+.l-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);}
+.l-center{position:relative;z-index:2;text-align:center}
+
+.l-orbit{width:130px;height:130px;margin:0 auto 44px;position:relative;}
+.l-orbit-ring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,101,0,.2);animation:spin 20s linear infinite;}
+.l-orbit-ring::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange);top:-4px;left:50%;margin-left:-4px;}
+.l-orbit-ring:nth-child(2){inset:18px;border-color:rgba(255,101,0,.13);animation:spin 14s linear infinite reverse}
+.l-orbit-ring:nth-child(2)::after{width:6px;height:6px;top:-3px;margin-left:-3px;background:#FF8C00;box-shadow:0 0 8px #FF8C00}
+@keyframes spin{to{transform:rotate(360deg)}}
+.l-logo-core{position:absolute;inset:24px;background:linear-gradient(135deg,rgba(255,101,0,.18),rgba(255,101,0,.04));border:1.5px solid rgba(255,101,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--orange);box-shadow:0 0 50px rgba(255,101,0,.12),inset 0 0 30px rgba(255,101,0,.05);animation:logoFloat 6s ease-in-out infinite;}
+@keyframes logoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.02)}}
+
+.l-title{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1.1;margin-bottom:8px}
+.l-title span{display:block;background:linear-gradient(90deg,#FF6500,#FFB347);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.l-subtitle{font-size:13px;color:var(--txt2);margin-bottom:40px;font-weight:400}
+.l-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:340px;margin:0 auto}
+.l-chip{padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);color:var(--txt2);letter-spacing:.3px;}
+
+/* form */
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:42px;animation:fadeUp .5s ease both}
+.brand-mark{width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,rgba(255,101,0,.22),rgba(255,101,0,.06));border:1.5px solid rgba(255,101,0,.3);display:flex;align-items:center;justify-content:center;color:var(--orange);box-shadow:0 4px 24px rgba(255,101,0,.12);}
+.brand-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--txt2);display:block;margin-bottom:3px}
+.brand-name{display:flex;gap:5px;align-items:baseline}
+.brand-n1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.brand-n2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--orange)}
+
+.form-head{margin-bottom:28px;animation:fadeUp .5s .1s ease both}
+.form-head h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.4px;margin-bottom:5px}
+.form-head p{font-size:13px;color:var(--txt2)}
+.form-rule{width:36px;height:2px;background:linear-gradient(90deg,var(--orange),transparent);border-radius:2px;margin-bottom:28px;animation:fadeUp .5s .15s ease both}
+
+.field{margin-bottom:14px;animation:fadeUp .5s ease both}
+.field:nth-child(1){animation-delay:.2s}.field:nth-child(2){animation-delay:.26s}
+.field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--txt2);margin-bottom:7px}
+.finput{display:flex;align-items:center;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:0 16px;transition:border-color .25s,box-shadow .25s,background .25s;}
+.finput:focus-within{border-color:rgba(255,101,0,.5);background:rgba(255,101,0,.04);box-shadow:0 0 0 3px rgba(255,101,0,.07),0 4px 20px rgba(0,0,0,.3)}
+.finput .ico{color:var(--orange);display:flex;align-items:center;flex-shrink:0;margin-right:12px;opacity:.65}
+.finput input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:13px 0}
+.finput input::placeholder{color:#2e2e44}
+.eye-btn{background:none;border:none;cursor:pointer;color:#2e2e44;display:flex;padding:0;transition:color .2s}
+.eye-btn:hover{color:var(--orange)}
+
+.forgot{display:flex;justify-content:flex-end;margin:-2px 0 22px;animation:fadeUp .5s .3s ease both}
+.forgot a{font-size:12px;color:var(--orange);text-decoration:none;opacity:.6;font-weight:600;transition:opacity .2s}
+.forgot a:hover{opacity:1}
+
+.btn-enter{width:100%;height:52px;background:linear-gradient(135deg,#FF6500 0%,#FF9500 100%);border:none;border-radius:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 32px rgba(255,101,0,.38),inset 0 1px 0 rgba(255,255,255,.18);transition:transform .18s,box-shadow .2s;animation:fadeUp .5s .35s ease both;position:relative;overflow:hidden;}
+.btn-enter::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,transparent 55%);border-radius:12px}
+.btn-enter:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(255,101,0,.52)}
+.btn-enter:active{transform:scale(.98)}
+.btn-enter:disabled{opacity:.7;cursor:not-allowed}
+.form-err{display:none;margin-top:10px;padding:9px 14px;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:#fca5a5;font-size:12.5px;text-align:center;font-weight:500}
+.form-err.on{display:block}
+.form-foot{margin-top:30px;display:flex;align-items:center;gap:8px;color:#2a2a40;font-size:11px;animation:fadeUp .5s .4s ease both}
+.form-foot svg{color:rgba(255,101,0,.25);flex-shrink:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── HUB SCREEN ─────────────────────── */
+#hub-screen{position:fixed;inset:0;z-index:100;display:none;opacity:0;flex-direction:column;overflow:hidden;background:var(--bg);transition:opacity .5s ease;}
+#hub-screen.visible{opacity:1}
+
+.topbar{height:56px;flex-shrink:0;background:rgba(10,10,18,.92);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:14px;position:relative;z-index:10;}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-icon{width:34px;height:34px;background:linear-gradient(135deg,rgba(255,101,0,.2),rgba(255,101,0,.05));border:1px solid rgba(255,101,0,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--orange);}
+.tb-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.tb-name em{color:var(--orange);font-style:normal}
+.tb-sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.tb-sub{font-size:11.5px;color:var(--txt2);font-weight:500}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tb-clock{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--orange);letter-spacing:1px;background:rgba(255,101,0,.08);border:1px solid rgba(255,101,0,.14);border-radius:8px;padding:4px 10px;}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(255,101,0,.22),rgba(255,101,0,.07));border:1.5px solid rgba(255,101,0,.3);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--orange);}
+.tb-user{font-size:12.5px;font-weight:600;color:var(--txt2)}
+.tb-logout{background:none;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:5px 11px;cursor:pointer;color:var(--txt2);font-size:11.5px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.tb-logout:hover{color:#fca5a5;border-color:rgba(252,165,165,.2);background:rgba(252,165,165,.05)}
+
+.hub-header{padding:22px 24px 0;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;}
+.hub-greet{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.hub-greet em{color:var(--orange);font-style:normal}
+.hub-sub2{font-size:12.5px;color:var(--txt2);margin-top:3px}
+.searchbox{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:0 14px;min-width:250px;transition:border-color .2s,box-shadow .2s;}
+.searchbox:focus-within{border-color:rgba(255,101,0,.35);box-shadow:0 0 0 3px rgba(255,101,0,.06)}
+.searchbox input{background:none;border:none;outline:none;color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:10px 0;width:100%}
+.searchbox input::placeholder{color:#2a2a40}
+.searchbox svg{color:#2a2a40;flex-shrink:0}
+
+.hub-stats{display:flex;gap:8px;padding:14px 24px 0;flex-shrink:0}
+.stat{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:7px 14px;}
+.stat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#fff}
+.stat-lbl{font-size:11px;color:var(--txt2)}
+
+.hub-body{flex:1;overflow-y:auto;padding:18px 24px 40px;display:flex;flex-direction:column;gap:24px;}
+.hub-body::-webkit-scrollbar{width:4px}
+.hub-body::-webkit-scrollbar-track{background:transparent}
+.hub-body::-webkit-scrollbar-thumb{background:#1c1c2e;border-radius:2px}
+
+.cat-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cat-icon{width:26px;height:26px;border-radius:7px;background:var(--surface3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.cat-name{font-size:9.5px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--txt2)}
+.cat-line{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* ══════════════════════════════════════
+   PROFESSIONAL SYSTEM CARDS
+══════════════════════════════════════ */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:11px;}
+
+.sys-card{
+  display:flex;flex-direction:column;
+  text-decoration:none;color:inherit;
+  border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  background:#0e0e18;
+  position:relative;
+  transition:transform .3s cubic-bezier(.34,1.4,.64,1),box-shadow .3s,border-color .3s;
+  cursor:pointer;
+}
+.sys-card:hover{
+  transform:translateY(-6px) scale(1.012);
+  border-color:color-mix(in srgb,var(--card-accent,#FF6500) 35%,transparent);
+  box-shadow:
+    0 20px 55px rgba(0,0,0,.7),
+    0 0 0 1px color-mix(in srgb,var(--card-accent,#FF6500) 18%,transparent),
+    0 6px 30px -5px color-mix(in srgb,var(--card-accent,#FF6500) 25%,transparent);
+}
+
+/* ── COVER ── */
+.card-cover{
+  height:110px;position:relative;overflow:hidden;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+/* bottom fade into card body */
+.card-cover::after{
+  content:'';position:absolute;inset:0;z-index:5;
+  background:linear-gradient(to bottom,transparent 45%,#0e0e18 100%);
+  pointer-events:none;
+}
+/* subtle hover shimmer */
+.card-cover::before{
+  content:'';position:absolute;inset:0;z-index:6;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.04) 50%,transparent 70%);
+  transform:translateX(-100%);
+  transition:transform .6s ease;
+}
+.sys-card:hover .card-cover::before{transform:translateX(200%);}
+
+/* cover SVG illustration */
+.cover-svg{position:absolute;inset:0;z-index:2;width:100%;height:100%;}
+
+/* ── CARD BODY ── */
+.card-content{
+  padding:12px 15px 15px;
+  display:flex;flex-direction:column;gap:7px;flex:1;
+  position:relative;z-index:1;
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+
+.card-icon-badge{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:19px;
+  background:color-mix(in srgb,var(--card-accent,#FF6500) 14%,#0a0a14);
+  border:1px solid color-mix(in srgb,var(--card-accent,#FF6500) 28%,transparent);
+  margin-top:-28px;position:relative;z-index:8;
+  box-shadow:0 4px 18px rgba(0,0,0,.6),0 0 12px color-mix(in srgb,var(--card-accent,#FF6500) 15%,transparent);
+  transition:transform .3s cubic-bezier(.34,1.5,.64,1),box-shadow .3s;
+}
+.sys-card:hover .card-icon-badge{
+  transform:scale(1.1) translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,.65),0 0 18px color-mix(in srgb,var(--card-accent,#FF6500) 30%,transparent);
+}
+
+.card-arrow-ico{
+  color:rgba(255,255,255,.12);flex-shrink:0;margin-top:3px;
+  transition:color .22s,transform .22s;
+}
+.sys-card:hover .card-arrow-ico{
+  color:var(--card-accent,#FF6500);
+  transform:translate(3px,-3px);
+}
+
+.card-name{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  color:#d5d2ea;line-height:1.25;letter-spacing:-.2px;
+  transition:color .2s;
+}
+.sys-card:hover .card-name{color:#fff}
+
+.card-desc{
+  font-size:11px;color:var(--txt2);line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+.card-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:color-mix(in srgb,var(--card-accent,#FF6500) 10%,transparent);
+  color:var(--card-accent,#FF6500);
+  border:1px solid color-mix(in srgb,var(--card-accent,#FF6500) 22%,transparent);
+  font-size:9px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;
+  padding:3px 9px 3px 7px;border-radius:100px;width:fit-content;margin-top:3px;
+}
+.card-tag::before{
+  content:'';width:4px;height:4px;border-radius:50%;
+  background:var(--card-accent,#FF6500);flex-shrink:0;
+}
+
+@media(max-width:700px){
+  .l-panel{width:100%;padding:40px 28px 52px}
+  .l-visual{display:none}
+  html,body{overflow:auto;height:auto}
+  #login-screen{position:relative;flex-direction:column;min-height:100vh}
+  .topbar{padding:0 14px}
+  .hub-header,.hub-stats,.hub-body{padding-left:14px;padding-right:14px}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ LOGIN ════════ -->
+<div id="login-screen">
+  <div class="l-panel">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".15"/>
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-label">Plataforma Integrada</span>
+        <div class="brand-name"><span class="brand-n1">FACILITA</span><span class="brand-n2">CELL</span></div>
+      </div>
+    </div>
+    <div class="form-head"><h2>Bem-vindo de volta</h2><p>Entre com suas credenciais para acessar</p></div>
+    <div class="form-rule"></div>
+    <div class="field">
+      <label>Usuário</label>
+      <div class="finput">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <input id="fu" type="text" placeholder="Digite seu usuário" autocomplete="username"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <div class="finput">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input id="fp" type="password" placeholder="Digite sua senha" autocomplete="current-password"/>
+        <button class="eye-btn" onclick="toggleEye(this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+    </div>
+    <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+    <button class="btn-enter" id="btnLogin" onclick="doLogin()">Acessar o Sistema</button>
+    <div class="form-err" id="err">Credenciais inválidas. Tente novamente.</div>
+    <div class="form-foot">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Acesso protegido · Facilita Cell © 2025
+    </div>
+  </div>
+
+  <div class="l-visual">
+    <div class="l-mesh"></div>
+    <div class="l-dots"></div>
+    <div class="l-center">
+      <div class="l-orbit">
+        <div class="l-orbit-ring"></div>
+        <div class="l-orbit-ring"></div>
+        <div class="l-logo-core">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".2"/>
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+            <path d="M9 12l2 2 4-4" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="l-title">Hub Central de<span>Facilita Cell</span></div>
+      <div class="l-subtitle">Todos os sistemas em um só lugar</div>
+      <div class="l-chips">
+        <div class="l-chip">💳 Financeiro</div>
+        <div class="l-chip">👥 RH</div>
+        <div class="l-chip">📄 Contratos</div>
+        <div class="l-chip">🎯 Vendas</div>
+        <div class="l-chip">🚀 Marketing</div>
+        <div class="l-chip">🔐 Compliance</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ HUB ════════ -->
+<div id="hub-screen">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div class="tb-name">FACILITA <em>CELL</em></div>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-sub">Hub de Sistemas</div>
+    <div class="tb-right">
+      <div class="tb-clock" id="hubClock">00:00</div>
+      <div class="tb-avatar">FC</div>
+      <div class="tb-user">Administrador</div>
+      <button class="tb-logout" onclick="doLogout()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <div class="hub-header">
+    <div>
+      <div class="hub-greet">Olá, <em>Facilita Cell</em> 👋</div>
+      <div class="hub-sub2">Selecione um sistema para acessar</div>
+    </div>
+    <div class="searchbox">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar sistema..." id="searchInput" oninput="filterCards()"/>
+    </div>
+  </div>
+
+  <div class="hub-stats">
+    <div class="stat">
+      <div class="stat-dot" style="background:var(--orange);box-shadow:0 0 8px rgba(255,101,0,.6)"></div>
+      <div class="stat-val">15</div><div class="stat-lbl">Sistemas ativos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-dot" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.5)"></div>
+      <div class="stat-val" style="color:#4ade80">Online</div><div class="stat-lbl">Status geral</div>
+    </div>
+    <div class="stat">
+      <div class="stat-dot" style="background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.5)"></div>
+      <div class="stat-val" id="statDate" style="color:#60a5fa">--/--</div><div class="stat-lbl">Data atual</div>
+    </div>
+  </div>
+
+  <div class="hub-body" id="hubBody">
+
+    <!-- ── FINANCEIRO & CRÉDITO ── -->
+    <div class="cat-section" data-cat="financeiro">
+      <div class="cat-hd"><div class="cat-icon">💰</div><span class="cat-name">Financeiro &amp; Crédito</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <!-- FinanCred -->
+        <a class="sys-card" href="https://financred-facilitacell.netlify.app" target="_blank"
+           style="--card-accent:#FF6500" data-name="financred financiamento crédito celulares">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="fc-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a0800"/><stop offset="100%" stop-color="#2e1200"/></linearGradient>
+                <linearGradient id="fc-card" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3d1a00"/><stop offset="100%" stop-color="#2a1000"/></linearGradient>
+              </defs>
+              <rect width="300" height="110" fill="url(#fc-bg)"/>
+              <!-- credit card shape -->
+              <rect x="170" y="18" width="110" height="70" rx="8" fill="url(#fc-card)" stroke="rgba(255,101,0,.35)" stroke-width="1"/>
+              <rect x="170" y="32" width="110" height="16" fill="rgba(255,101,0,.18)"/>
+              <!-- chip -->
+              <rect x="180" y="48" width="18" height="14" rx="3" fill="rgba(255,180,0,.55)" stroke="rgba(255,160,0,.4)" stroke-width=".5"/>
+              <line x1="186" y1="48" x2="186" y2="62" stroke="rgba(200,120,0,.4)" stroke-width=".5"/>
+              <line x1="192" y1="48" x2="192" y2="62" stroke="rgba(200,120,0,.4)" stroke-width=".5"/>
+              <line x1="180" y1="55" x2="198" y2="55" stroke="rgba(200,120,0,.4)" stroke-width=".5"/>
+              <!-- card number dots -->
+              <circle cx="210" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="216" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="222" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="228" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="238" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="244" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="250" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <circle cx="256" cy="67" r="2" fill="rgba(255,255,255,.4)"/>
+              <!-- contactless icon -->
+              <path d="M264 54 Q270 60 264 66" stroke="rgba(255,101,0,.7)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <path d="M268 50 Q277 60 268 70" stroke="rgba(255,101,0,.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <!-- approval badge -->
+              <circle cx="50" cy="55" r="28" fill="rgba(255,101,0,.08)" stroke="rgba(255,101,0,.2)" stroke-width="1"/>
+              <circle cx="50" cy="55" r="20" fill="rgba(255,101,0,.12)" stroke="rgba(255,101,0,.3)" stroke-width="1"/>
+              <path d="M40 55 l7 7 l13-13" stroke="#FF6500" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="50" y="94" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,101,0,.5)" letter-spacing="1">APROVADO</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">💳</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">FinanCred</div>
+            <div class="card-desc">Financiamento inteligente de celulares com aprovação automatizada</div>
+            <div class="card-tag">Financiamento</div>
+          </div>
+        </a>
+
+        <!-- LucroCell -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/LUCROCELL/" target="_blank"
+           style="--card-accent:#F59E0B" data-name="lucrocell lucro controladoria precificação margem">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="lc-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#110900"/><stop offset="100%" stop-color="#261600"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#lc-bg)"/>
+              <!-- bar chart -->
+              <rect x="30" y="75" width="22" height="22" rx="2" fill="rgba(245,158,11,.22)" stroke="rgba(245,158,11,.35)" stroke-width=".8"/>
+              <rect x="60" y="55" width="22" height="42" rx="2" fill="rgba(245,158,11,.3)" stroke="rgba(245,158,11,.4)" stroke-width=".8"/>
+              <rect x="90" y="38" width="22" height="59" rx="2" fill="rgba(245,158,11,.42)" stroke="rgba(245,158,11,.55)" stroke-width=".8"/>
+              <rect x="120" y="22" width="22" height="75" rx="2" fill="rgba(245,158,11,.6)" stroke="rgba(245,158,11,.75)" stroke-width=".8"/>
+              <!-- trend line -->
+              <polyline points="41,72 71,52 101,35 131,19" stroke="#F59E0B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="131" cy="19" r="3.5" fill="#F59E0B"/>
+              <!-- percentage badge -->
+              <rect x="165" y="25" width="100" height="38" rx="8" fill="rgba(245,158,11,.1)" stroke="rgba(245,158,11,.2)" stroke-width=".8"/>
+              <text x="215" y="42" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="16" font-weight="700" fill="#F59E0B">+24%</text>
+              <text x="215" y="55" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(245,158,11,.6)" letter-spacing=".5">MARGEM</text>
+              <!-- baseline -->
+              <line x1="20" y1="97" x2="160" y2="97" stroke="rgba(245,158,11,.15)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📈</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">LucroCell</div>
+            <div class="card-desc">Controladoria, precificação e análise de margem de lucro</div>
+            <div class="card-tag">Controladoria</div>
+          </div>
+        </a>
+
+        <!-- Calculadora Salário -->
+        <a class="sys-card" href="https://salario-comissao-calculadora.netlify.app" target="_blank"
+           style="--card-accent:#4ADE80" data-name="salário comissão calculadora folha pagamento">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cs-bg" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#001408"/><stop offset="100%" stop-color="#002010"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#cs-bg)"/>
+              <!-- calculator body -->
+              <rect x="20" y="10" width="80" height="90" rx="8" fill="rgba(74,222,128,.07)" stroke="rgba(74,222,128,.2)" stroke-width="1"/>
+              <rect x="28" y="18" width="64" height="22" rx="4" fill="rgba(74,222,128,.15)" stroke="rgba(74,222,128,.25)" stroke-width=".6"/>
+              <text x="84" y="33" text-anchor="end" font-family="monospace" font-size="11" fill="#4ADE80">R$4.280</text>
+              <!-- buttons grid -->
+              <rect x="28" y="48" width="17" height="12" rx="2" fill="rgba(74,222,128,.12)"/>
+              <rect x="50" y="48" width="17" height="12" rx="2" fill="rgba(74,222,128,.12)"/>
+              <rect x="72" y="48" width="17" height="12" rx="2" fill="rgba(74,222,128,.2)"/>
+              <rect x="28" y="65" width="17" height="12" rx="2" fill="rgba(74,222,128,.08)"/>
+              <rect x="50" y="65" width="17" height="12" rx="2" fill="rgba(74,222,128,.08)"/>
+              <rect x="72" y="65" width="17" height="12" rx="2" fill="rgba(74,222,128,.08)"/>
+              <rect x="28" y="82" width="39" height="12" rx="2" fill="rgba(74,222,128,.18)"/>
+              <rect x="72" y="82" width="17" height="12" rx="2" fill="rgba(74,222,128,.08)"/>
+              <!-- commission breakdown -->
+              <text x="125" y="28" font-family="'Space Grotesk',sans-serif" font-size="8" fill="rgba(74,222,128,.55)" letter-spacing=".5">SALÁRIO BASE</text>
+              <rect x="125" y="33" width="90" height="4" rx="2" fill="rgba(74,222,128,.15)"/>
+              <rect x="125" y="33" width="65" height="4" rx="2" fill="rgba(74,222,128,.5)"/>
+              <text x="125" y="52" font-family="'Space Grotesk',sans-serif" font-size="8" fill="rgba(74,222,128,.55)" letter-spacing=".5">COMISSÃO</text>
+              <rect x="125" y="57" width="90" height="4" rx="2" fill="rgba(74,222,128,.15)"/>
+              <rect x="125" y="57" width="40" height="4" rx="2" fill="#4ADE80"/>
+              <text x="125" y="76" font-family="'Space Grotesk',sans-serif" font-size="8" fill="rgba(74,222,128,.55)" letter-spacing=".5">TOTAL</text>
+              <text x="125" y="92" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#4ADE80">R$ 6.480</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🧮</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Calculadora Salário</div>
+            <div class="card-desc">Cálculo de salários, comissões e remuneração variável da equipe</div>
+            <div class="card-tag">Comissões</div>
+          </div>
+        </a>
+
+        <!-- Simulador PayMobi -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/simuladorpaymobi/" target="_blank"
+           style="--card-accent:#C084FC" data-name="simulador paymobi pagamento parcelas">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="pm-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0c0018"/><stop offset="100%" stop-color="#180030"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#pm-bg)"/>
+              <!-- phone silhouette -->
+              <rect x="20" y="8" width="55" height="94" rx="10" fill="rgba(192,132,252,.08)" stroke="rgba(192,132,252,.25)" stroke-width="1"/>
+              <rect x="26" y="18" width="43" height="70" rx="3" fill="rgba(192,132,252,.1)"/>
+              <circle cx="47" cy="94" r="4" fill="rgba(192,132,252,.3)"/>
+              <!-- installment plan on screen -->
+              <text x="47" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(192,132,252,.6)">PARCELAS</text>
+              <text x="47" y="46" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="11" font-weight="700" fill="#C084FC">12x</text>
+              <text x="47" y="57" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(192,132,252,.8)">R$89,90</text>
+              <!-- curved arrows = installments -->
+              <rect x="30" y="62" width="34" height="3" rx="1.5" fill="rgba(192,132,252,.2)"/>
+              <rect x="30" y="68" width="24" height="3" rx="1.5" fill="rgba(192,132,252,.15)"/>
+              <!-- breakdown panel -->
+              <rect x="95" y="15" width="185" height="80" rx="8" fill="rgba(192,132,252,.06)" stroke="rgba(192,132,252,.15)" stroke-width=".8"/>
+              <text x="110" y="32" font-family="monospace" font-size="7.5" fill="rgba(192,132,252,.5)">Valor total</text>
+              <text x="265" y="32" text-anchor="end" font-family="monospace" font-size="7.5" fill="rgba(192,132,252,.8)">R$ 1.079</text>
+              <line x1="105" y1="37" x2="272" y2="37" stroke="rgba(192,132,252,.1)" stroke-width=".5"/>
+              <text x="110" y="50" font-family="monospace" font-size="7.5" fill="rgba(192,132,252,.5)">Entrada</text>
+              <text x="265" y="50" text-anchor="end" font-family="monospace" font-size="7.5" fill="rgba(192,132,252,.8)">R$ 0</text>
+              <line x1="105" y1="55" x2="272" y2="55" stroke="rgba(192,132,252,.1)" stroke-width=".5"/>
+              <text x="110" y="68" font-family="monospace" font-size="7.5" fill="rgba(192,132,252,.5)">12x sem juros</text>
+              <text x="265" y="68" text-anchor="end" font-family="monospace" font-size="7.5" fill="#C084FC">R$ 89,90</text>
+              <rect x="105" y="78" width="162" height="12" rx="4" fill="rgba(192,132,252,.15)" stroke="rgba(192,132,252,.25)" stroke-width=".6"/>
+              <text x="186" y="88" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="7" font-weight="700" fill="#C084FC">SIMULAR PARCELAS</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📱</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Simulador PayMobi</div>
+            <div class="card-desc">Simulação de parcelamentos e condições de pagamento PayMobi</div>
+            <div class="card-tag">Simulador</div>
+          </div>
+        </a>
+
+        <!-- Consulta PayJoy -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/consultapayjoy/" target="_blank"
+           style="--card-accent:#22D3EE" data-name="consulta payjoy financeira crédito">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="pj-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#001318"/><stop offset="100%" stop-color="#002530"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#pj-bg)"/>
+              <!-- search magnifier -->
+              <circle cx="55" cy="52" r="30" fill="rgba(34,211,238,.05)" stroke="rgba(34,211,238,.2)" stroke-width="1.5"/>
+              <circle cx="55" cy="52" r="20" fill="none" stroke="rgba(34,211,238,.35)" stroke-width="1.5"/>
+              <line x1="70" y1="67" x2="83" y2="80" stroke="rgba(34,211,238,.55)" stroke-width="3" stroke-linecap="round"/>
+              <!-- status grid inside search -->
+              <text x="55" y="48" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(34,211,238,.6)">STATUS</text>
+              <text x="55" y="60" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="9" font-weight="700" fill="#22D3EE">ATIVO</text>
+              <!-- result panel -->
+              <rect x="100" y="12" width="180" height="86" rx="8" fill="rgba(34,211,238,.05)" stroke="rgba(34,211,238,.15)" stroke-width=".8"/>
+              <text x="115" y="28" font-family="'Space Grotesk',sans-serif" font-size="8" font-weight="600" fill="rgba(34,211,238,.7)">RESULTADO DA CONSULTA</text>
+              <line x1="108" y1="33" x2="272" y2="33" stroke="rgba(34,211,238,.1)" stroke-width=".5"/>
+              <circle cx="116" cy="46" r="4" fill="rgba(34,211,238,.15)" stroke="rgba(34,211,238,.4)" stroke-width=".8"/>
+              <text x="124" y="49" font-family="monospace" font-size="7.5" fill="rgba(34,211,238,.6)">Contrato ativo</text>
+              <circle cx="116" cy="60" r="4" fill="rgba(34,211,238,.15)" stroke="rgba(34,211,238,.4)" stroke-width=".8"/>
+              <text x="124" y="63" font-family="monospace" font-size="7.5" fill="rgba(34,211,238,.6)">Parcelas em dia</text>
+              <circle cx="116" cy="74" r="4" fill="rgba(74,222,128,.2)" stroke="rgba(74,222,128,.5)" stroke-width=".8"/>
+              <path d="M113 74 l2 2 l3.5-3.5" stroke="#4ADE80" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <text x="124" y="77" font-family="monospace" font-size="7.5" fill="#4ADE80">Sem pendências</text>
+              <rect x="110" y="83" width="150" height="9" rx="3" fill="rgba(34,211,238,.1)"/>
+              <rect x="110" y="83" width="120" height="9" rx="3" fill="rgba(34,211,238,.25)"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🔍</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Consulta PayJoy</div>
+            <div class="card-desc">Consulta de status e informações de financiamentos PayJoy</div>
+            <div class="card-tag">Consulta</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── RH & COLABORADORES ── -->
+    <div class="cat-section" data-cat="rh">
+      <div class="cat-hd"><div class="cat-icon">👥</div><span class="cat-name">RH &amp; Colaboradores</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <!-- Portal do Colaborador -->
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/portal/" target="_blank"
+           style="--card-accent:#60A5FA" data-name="portal colaborador funcionário documentos benefícios">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="pc-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#000a20"/><stop offset="100%" stop-color="#001540"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#pc-bg)"/>
+              <!-- person silhouette -->
+              <circle cx="55" cy="35" r="18" fill="rgba(96,165,250,.12)" stroke="rgba(96,165,250,.3)" stroke-width="1.2"/>
+              <circle cx="55" cy="33" r="9" fill="rgba(96,165,250,.25)"/>
+              <path d="M30 75 Q30 55 55 55 Q80 55 80 75" fill="rgba(96,165,250,.2)" stroke="rgba(96,165,250,.35)" stroke-width="1"/>
+              <!-- ID card -->
+              <rect x="95" y="18" width="185" height="74" rx="7" fill="rgba(96,165,250,.07)" stroke="rgba(96,165,250,.18)" stroke-width=".8"/>
+              <rect x="95" y="18" width="185" height="18" rx="7" fill="rgba(96,165,250,.12)"/>
+              <rect x="95" y="29" width="185" height="7" fill="rgba(96,165,250,.12)"/>
+              <text x="188" y="31" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(96,165,250,.7)" letter-spacing="1">PORTAL DO COLABORADOR</text>
+              <circle cx="118" cy="55" r="12" fill="rgba(96,165,250,.12)" stroke="rgba(96,165,250,.2)" stroke-width=".8"/>
+              <circle cx="118" cy="52" r="5" fill="rgba(96,165,250,.3)"/>
+              <path d="M108 64 Q108 58 118 58 Q128 58 128 64" fill="rgba(96,165,250,.2)"/>
+              <rect x="138" y="45" width="80" height="6" rx="2" fill="rgba(96,165,250,.25)"/>
+              <rect x="138" y="55" width="55" height="5" rx="2" fill="rgba(96,165,250,.15)"/>
+              <rect x="138" y="64" width="70" height="5" rx="2" fill="rgba(96,165,250,.12)"/>
+              <rect x="138" y="73" width="45" height="5" rx="2" fill="rgba(96,165,250,.1)"/>
+              <text x="256" y="85" text-anchor="end" font-family="monospace" font-size="7" fill="rgba(96,165,250,.4)">ID: FC-2024</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">👤</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Portal do Colaborador</div>
+            <div class="card-desc">Documentos, contracheques, benefícios e informações pessoais</div>
+            <div class="card-tag">Colaborador</div>
+          </div>
+        </a>
+
+        <!-- RH Digital -->
+        <a class="sys-card" href="https://rhdigitalfacilita-create.github.io/rhdigitalfacilita.github.io/" target="_blank"
+           style="--card-accent:#F87171" data-name="rh digital recursos humanos gestão">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="rh-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#130006"/><stop offset="100%" stop-color="#28000e"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#rh-bg)"/>
+              <!-- org chart nodes -->
+              <rect x="125" y="10" width="50" height="24" rx="5" fill="rgba(248,113,113,.18)" stroke="rgba(248,113,113,.4)" stroke-width="1"/>
+              <text x="150" y="26" text-anchor="middle" font-family="monospace" font-size="7" fill="#F87171">DIRETOR</text>
+              <!-- lines down -->
+              <line x1="150" y1="34" x2="150" y2="44" stroke="rgba(248,113,113,.3)" stroke-width="1"/>
+              <line x1="80" y1="44" x2="220" y2="44" stroke="rgba(248,113,113,.3)" stroke-width="1"/>
+              <line x1="80" y1="44" x2="80" y2="54" stroke="rgba(248,113,113,.3)" stroke-width="1"/>
+              <line x1="150" y1="44" x2="150" y2="54" stroke="rgba(248,113,113,.3)" stroke-width="1"/>
+              <line x1="220" y1="44" x2="220" y2="54" stroke="rgba(248,113,113,.3)" stroke-width="1"/>
+              <!-- level 2 -->
+              <rect x="50" y="54" width="60" height="22" rx="4" fill="rgba(248,113,113,.12)" stroke="rgba(248,113,113,.28)" stroke-width=".8"/>
+              <text x="80" y="68" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(248,113,113,.8)">GERENTE</text>
+              <rect x="120" y="54" width="60" height="22" rx="4" fill="rgba(248,113,113,.12)" stroke="rgba(248,113,113,.28)" stroke-width=".8"/>
+              <text x="150" y="68" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(248,113,113,.8)">COORDENADOR</text>
+              <rect x="190" y="54" width="60" height="22" rx="4" fill="rgba(248,113,113,.12)" stroke="rgba(248,113,113,.28)" stroke-width=".8"/>
+              <text x="220" y="68" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(248,113,113,.8)">ANALISTA</text>
+              <!-- level 3 dots -->
+              <circle cx="60" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="80" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="100" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="140" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="160" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="210" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+              <circle cx="230" cy="90" r="6" fill="rgba(248,113,113,.15)" stroke="rgba(248,113,113,.3)" stroke-width=".8"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🏢</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">RH Digital</div>
+            <div class="card-desc">Gestão digital completa de recursos humanos da Facilita Cell</div>
+            <div class="card-tag">RH</div>
+          </div>
+        </a>
+
+        <!-- Recrutamento -->
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofacilitacell/" target="_blank"
+           style="--card-accent:#FF6500" data-name="recrutamento seleção candidatos vagas">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="re-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#180600"/><stop offset="100%" stop-color="#2c1000"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#re-bg)"/>
+              <!-- funnel -->
+              <path d="M20 15 L120 15 L100 38 L40 38 Z" fill="rgba(255,101,0,.18)" stroke="rgba(255,101,0,.35)" stroke-width="1"/>
+              <path d="M40 42 L100 42 L88 62 L52 62 Z" fill="rgba(255,101,0,.24)" stroke="rgba(255,101,0,.4)" stroke-width="1"/>
+              <path d="M52 66 L88 66 L80 84 L60 84 Z" fill="rgba(255,101,0,.35)" stroke="rgba(255,101,0,.55)" stroke-width="1"/>
+              <!-- candidate counts -->
+              <text x="70" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="rgba(255,101,0,.8)">128 candidatos</text>
+              <text x="70" y="55" text-anchor="middle" font-family="monospace" font-size="7.5" fill="rgba(255,101,0,.8)">32 triagem</text>
+              <text x="70" y="78" text-anchor="middle" font-family="monospace" font-size="7" fill="#FF6500">8 finalistas</text>
+              <!-- star badge on right -->
+              <circle cx="210" cy="55" r="35" fill="rgba(255,101,0,.05)" stroke="rgba(255,101,0,.15)" stroke-width="1"/>
+              <text x="210" y="45" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="11" font-weight="700" fill="rgba(255,101,0,.4)">VAGAS</text>
+              <text x="210" y="62" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="22" font-weight="800" fill="#FF6500">12</text>
+              <text x="210" y="75" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,101,0,.5)">abertas</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🎯</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Recrutamento</div>
+            <div class="card-desc">Processo seletivo, triagem de candidatos e gestão de vagas</div>
+            <div class="card-tag">Seleção</div>
+          </div>
+        </a>
+
+        <!-- Recrutamento Fase 1 -->
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofase1/" target="_blank"
+           style="--card-accent:#FB923C" data-name="recrutamento fase 1 candidato etapa">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="f1-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#130800"/><stop offset="100%" stop-color="#241400"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#f1-bg)"/>
+              <!-- step indicators -->
+              <circle cx="40" cy="45" r="18" fill="rgba(251,146,60,.25)" stroke="#FB923C" stroke-width="1.5"/>
+              <text x="40" y="50" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="800" fill="#FB923C">1</text>
+              <line x1="58" y1="45" x2="100" y2="45" stroke="rgba(251,146,60,.25)" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="118" cy="45" r="14" fill="rgba(251,146,60,.1)" stroke="rgba(251,146,60,.3)" stroke-width="1"/>
+              <text x="118" y="50" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="rgba(251,146,60,.4)">2</text>
+              <line x1="132" y1="45" x2="165" y2="45" stroke="rgba(251,146,60,.15)" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="182" cy="45" r="14" fill="rgba(251,146,60,.06)" stroke="rgba(251,146,60,.18)" stroke-width="1"/>
+              <text x="182" y="50" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="rgba(251,146,60,.25)">3</text>
+              <!-- labels -->
+              <text x="40" y="73" text-anchor="middle" font-family="monospace" font-size="6.5" fill="#FB923C">CADASTRO</text>
+              <text x="118" y="73" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(251,146,60,.4)">TRIAGEM</text>
+              <text x="182" y="73" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(251,146,60,.25)">ENTREVISTA</text>
+              <!-- progress bar -->
+              <rect x="20" y="85" width="240" height="6" rx="3" fill="rgba(251,146,60,.1)"/>
+              <rect x="20" y="85" width="80" height="6" rx="3" fill="rgba(251,146,60,.6)"/>
+              <text x="105" y="93" font-family="monospace" font-size="6.5" fill="rgba(251,146,60,.5)">33% concluído</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📋</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Recrutamento Fase 1</div>
+            <div class="card-desc">Primeira etapa do processo seletivo e captação de candidatos</div>
+            <div class="card-tag">Fase 1</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── JURÍDICO & CONTRATOS ── -->
+    <div class="cat-section" data-cat="juridico">
+      <div class="cat-hd"><div class="cat-icon">📄</div><span class="cat-name">Jurídico &amp; Contratos</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <!-- Contratos -->
+        <a class="sys-card" href="https://contratos-facilita-cell.netlify.app/" target="_blank"
+           style="--card-accent:#4ADE80" data-name="contratos documentos assinatura jurídico">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="co-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#001508"/><stop offset="100%" stop-color="#002010"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#co-bg)"/>
+              <!-- document -->
+              <rect x="25" y="10" width="70" height="90" rx="5" fill="rgba(74,222,128,.07)" stroke="rgba(74,222,128,.2)" stroke-width="1"/>
+              <rect x="33" y="20" width="54" height="4" rx="2" fill="rgba(74,222,128,.3)"/>
+              <rect x="33" y="28" width="45" height="3" rx="1.5" fill="rgba(74,222,128,.18)"/>
+              <rect x="33" y="34" width="50" height="3" rx="1.5" fill="rgba(74,222,128,.15)"/>
+              <rect x="33" y="40" width="38" height="3" rx="1.5" fill="rgba(74,222,128,.12)"/>
+              <rect x="33" y="50" width="54" height="3" rx="1.5" fill="rgba(74,222,128,.15)"/>
+              <rect x="33" y="56" width="42" height="3" rx="1.5" fill="rgba(74,222,128,.12)"/>
+              <rect x="33" y="62" width="48" height="3" rx="1.5" fill="rgba(74,222,128,.1)"/>
+              <!-- signature area -->
+              <line x1="33" y1="85" x2="87" y2="85" stroke="rgba(74,222,128,.25)" stroke-width=".8"/>
+              <path d="M35 83 Q42 78 48 84 Q54 90 60 83 Q66 77 72 84" stroke="rgba(74,222,128,.65)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <!-- checkmark badge -->
+              <circle cx="175" cy="55" r="32" fill="rgba(74,222,128,.06)" stroke="rgba(74,222,128,.18)" stroke-width="1"/>
+              <circle cx="175" cy="55" r="22" fill="rgba(74,222,128,.1)" stroke="rgba(74,222,128,.28)" stroke-width="1"/>
+              <path d="M163 55 l8 8 l16-16" stroke="#4ADE80" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="175" y="98" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(74,222,128,.5)" letter-spacing=".5">ASSINADO</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">📝</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Contratos</div>
+            <div class="card-desc">Criação, assinatura e acompanhamento de contratos e documentos legais</div>
+            <div class="card-tag">Jurídico</div>
+          </div>
+        </a>
+
+        <!-- Contratos CLT -->
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/contratosfuncionariosfacilita/" target="_blank"
+           style="--card-accent:#60A5FA" data-name="contratos funcionários CLT trabalhista">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cl-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00081c"/><stop offset="100%" stop-color="#001030"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#cl-bg)"/>
+              <!-- two people shaking hands -->
+              <circle cx="75" cy="32" r="12" fill="rgba(96,165,250,.15)" stroke="rgba(96,165,250,.3)" stroke-width="1"/>
+              <circle cx="225" cy="32" r="12" fill="rgba(96,165,250,.15)" stroke="rgba(96,165,250,.3)" stroke-width="1"/>
+              <path d="M55 70 Q55 50 75 50 Q95 50 95 70" fill="rgba(96,165,250,.1)" stroke="rgba(96,165,250,.2)" stroke-width=".8"/>
+              <path d="M205 70 Q205 50 225 50 Q245 50 245 70" fill="rgba(96,165,250,.1)" stroke="rgba(96,165,250,.2)" stroke-width=".8"/>
+              <!-- handshake in middle -->
+              <path d="M115 58 Q135 50 150 55 Q165 60 185 52" stroke="#60A5FA" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <circle cx="150" cy="55" r="6" fill="rgba(96,165,250,.3)" stroke="#60A5FA" stroke-width="1"/>
+              <!-- CLT badge -->
+              <rect x="115" y="78" width="70" height="22" rx="5" fill="rgba(96,165,250,.12)" stroke="rgba(96,165,250,.3)" stroke-width=".8"/>
+              <text x="150" y="93" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="800" fill="#60A5FA" letter-spacing="2">CLT</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🤝</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Contratos Funcionários</div>
+            <div class="card-desc">Gestão de contratos trabalhistas e documentação de colaboradores</div>
+            <div class="card-tag">CLT</div>
+          </div>
+        </a>
+
+        <!-- Consulta CPF -->
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/consultacpf/" target="_blank"
+           style="--card-accent:#F472B6" data-name="consulta cpf verificação cadastro cliente">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="cpf-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#160010"/><stop offset="100%" stop-color="#250018"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#cpf-bg)"/>
+              <!-- CPF number display -->
+              <rect x="20" y="20" width="175" height="70" rx="8" fill="rgba(244,114,182,.06)" stroke="rgba(244,114,182,.18)" stroke-width="1"/>
+              <text x="32" y="38" font-family="monospace" font-size="7" fill="rgba(244,114,182,.5)" letter-spacing=".5">CONSULTA CPF</text>
+              <text x="32" y="56" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="rgba(244,114,182,.8)" letter-spacing="1">•••.•••.•••-••</text>
+              <line x1="30" y1="65" x2="185" y2="65" stroke="rgba(244,114,182,.1)" stroke-width=".8"/>
+              <!-- status -->
+              <circle cx="38" cy="77" r="5" fill="rgba(74,222,128,.2)" stroke="rgba(74,222,128,.5)" stroke-width=".8"/>
+              <path d="M35 77 l2 2 l4-4" stroke="#4ADE80" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <text x="48" y="80" font-family="monospace" font-size="7.5" fill="rgba(244,114,182,.7)">CPF regular</text>
+              <!-- shield icon right -->
+              <path d="M235 20 L260 26 L260 50 Q260 65 247 72 Q234 65 234 50 L234 26 Z" fill="rgba(244,114,182,.1)" stroke="rgba(244,114,182,.28)" stroke-width="1"/>
+              <path d="M241 47 l5 5 l11-11" stroke="#F472B6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="247" y="82" text-anchor="middle" font-family="monospace" font-size="6" fill="rgba(244,114,182,.45)">SEGURO</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🔐</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Consulta CPF</div>
+            <div class="card-desc">Verificação e consulta de CPF para cadastro de clientes e funcionários</div>
+            <div class="card-tag">Consulta</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ── MARKETING & OPERAÇÕES ── -->
+    <div class="cat-section" data-cat="marketing">
+      <div class="cat-hd"><div class="cat-icon">🚀</div><span class="cat-name">Marketing &amp; Operações</span><div class="cat-line"></div></div>
+      <div class="cards-grid">
+
+        <!-- Sorteio -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/SORTEIOFACILITACELL/" target="_blank"
+           style="--card-accent:#A78BFA" data-name="sorteio promoção marketing campanha">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="so-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0e0018"/><stop offset="100%" stop-color="#1c0030"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#so-bg)"/>
+              <!-- lottery drum -->
+              <ellipse cx="80" cy="55" rx="45" ry="40" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.25)" stroke-width="1.2"/>
+              <ellipse cx="80" cy="55" rx="32" ry="28" fill="rgba(167,139,250,.1)" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
+              <!-- lottery balls -->
+              <circle cx="68" cy="48" r="9" fill="rgba(167,139,250,.2)" stroke="rgba(167,139,250,.45)" stroke-width="1"/>
+              <text x="68" y="52" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="8" font-weight="700" fill="#A78BFA">7</text>
+              <circle cx="88" cy="60" r="9" fill="rgba(244,114,182,.2)" stroke="rgba(244,114,182,.45)" stroke-width="1"/>
+              <text x="88" y="64" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="8" font-weight="700" fill="#F472B6">3</text>
+              <circle cx="72" cy="66" r="7" fill="rgba(251,146,60,.2)" stroke="rgba(251,146,60,.4)" stroke-width="1"/>
+              <text x="72" y="70" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="7" font-weight="700" fill="#FB923C">42</text>
+              <!-- winner panel -->
+              <rect x="145" y="18" width="135" height="74" rx="7" fill="rgba(167,139,250,.07)" stroke="rgba(167,139,250,.18)" stroke-width=".8"/>
+              <text x="213" y="36" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(167,139,250,.6)" letter-spacing="1">SORTEIO ATIVO</text>
+              <text x="213" y="54" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="22" font-weight="800" fill="#A78BFA">★</text>
+              <text x="213" y="68" text-anchor="middle" font-family="monospace" font-size="7.5" fill="rgba(167,139,250,.8)">482 participantes</text>
+              <rect x="158" y="75" width="110" height="10" rx="3" fill="rgba(167,139,250,.15)" stroke="rgba(167,139,250,.3)" stroke-width=".6"/>
+              <text x="213" y="83" text-anchor="middle" font-family="monospace" font-size="6.5" font-weight="700" fill="#A78BFA">VER CAMPANHAS</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🎰</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Sorteio Facilita Cell</div>
+            <div class="card-desc">Sistema de sorteios e campanhas promocionais para clientes</div>
+            <div class="card-tag">Promoção</div>
+          </div>
+        </a>
+
+        <!-- Hub Colaboradores -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/colaboradores/" target="_blank"
+           style="--card-accent:#FF6500" data-name="hub central sistemas colaboradores">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="hb-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#150600"/><stop offset="100%" stop-color="#271200"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#hb-bg)"/>
+              <!-- hub center node -->
+              <circle cx="150" cy="52" r="20" fill="rgba(255,101,0,.15)" stroke="#FF6500" stroke-width="1.5"/>
+              <circle cx="150" cy="52" r="12" fill="rgba(255,101,0,.2)"/>
+              <text x="150" y="57" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="800" fill="#FF6500">HUB</text>
+              <!-- satellite nodes -->
+              <circle cx="80" cy="25" r="10" fill="rgba(255,101,0,.1)" stroke="rgba(255,101,0,.3)" stroke-width="1"/>
+              <line x1="88" y1="31" x2="133" y2="44" stroke="rgba(255,101,0,.22)" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle cx="220" cy="25" r="10" fill="rgba(255,101,0,.1)" stroke="rgba(255,101,0,.3)" stroke-width="1"/>
+              <line x1="212" y1="31" x2="167" y2="44" stroke="rgba(255,101,0,.22)" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle cx="50" cy="70" r="10" fill="rgba(255,101,0,.1)" stroke="rgba(255,101,0,.3)" stroke-width="1"/>
+              <line x1="58" y1="65" x2="131" y2="56" stroke="rgba(255,101,0,.22)" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle cx="250" cy="70" r="10" fill="rgba(255,101,0,.1)" stroke="rgba(255,101,0,.3)" stroke-width="1"/>
+              <line x1="242" y1="65" x2="169" y2="56" stroke="rgba(255,101,0,.22)" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle cx="150" cy="95" r="8" fill="rgba(255,101,0,.1)" stroke="rgba(255,101,0,.25)" stroke-width="1"/>
+              <line x1="150" y1="87" x2="150" y2="72" stroke="rgba(255,101,0,.22)" stroke-width="1" stroke-dasharray="3 2"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🏠</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Hub Colaboradores</div>
+            <div class="card-desc">Central de acesso aos sistemas internos para colaboradores</div>
+            <div class="card-tag">Hub</div>
+          </div>
+        </a>
+
+        <!-- Site Facilita Cell -->
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/" target="_blank"
+           style="--card-accent:#22D3EE" data-name="site facilita cell principal home">
+          <div class="card-cover">
+            <svg class="cover-svg" viewBox="0 0 300 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="si-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#001318"/><stop offset="100%" stop-color="#002030"/></linearGradient></defs>
+              <rect width="300" height="110" fill="url(#si-bg)"/>
+              <!-- browser chrome -->
+              <rect x="20" y="12" width="260" height="86" rx="7" fill="rgba(34,211,238,.05)" stroke="rgba(34,211,238,.2)" stroke-width="1"/>
+              <rect x="20" y="12" width="260" height="20" rx="7" fill="rgba(34,211,238,.1)"/>
+              <rect x="20" y="25" width="260" height="7" fill="rgba(34,211,238,.1)"/>
+              <!-- browser dots -->
+              <circle cx="34" cy="22" r="3.5" fill="rgba(248,113,113,.5)"/>
+              <circle cx="45" cy="22" r="3.5" fill="rgba(251,191,36,.5)"/>
+              <circle cx="56" cy="22" r="3.5" fill="rgba(74,222,128,.5)"/>
+              <!-- address bar -->
+              <rect x="70" y="16" width="180" height="12" rx="4" fill="rgba(34,211,238,.1)" stroke="rgba(34,211,238,.15)" stroke-width=".5"/>
+              <text x="160" y="25" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(34,211,238,.65)">facilitacell.com.br</text>
+              <!-- page content preview -->
+              <rect x="30" y="38" width="240" height="8" rx="2" fill="rgba(34,211,238,.12)"/>
+              <rect x="30" y="50" width="160" height="6" rx="2" fill="rgba(34,211,238,.08)"/>
+              <rect x="30" y="60" width="190" height="6" rx="2" fill="rgba(34,211,238,.07)"/>
+              <rect x="30" y="70" width="130" height="6" rx="2" fill="rgba(34,211,238,.06)"/>
+              <!-- CTA button -->
+              <rect x="195" y="50" width="70" height="26" rx="5" fill="rgba(34,211,238,.18)" stroke="rgba(34,211,238,.4)" stroke-width=".8"/>
+              <text x="230" y="67" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="7.5" font-weight="700" fill="#22D3EE">ACESSAR</text>
+            </svg>
+          </div>
+          <div class="card-content">
+            <div class="card-top">
+              <div class="card-icon-badge">🌐</div>
+              <svg class="card-arrow-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-name">Site Facilita Cell</div>
+            <div class="card-desc">Portal principal da Facilita Cell com informações institucionais</div>
+            <div class="card-tag">Site</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CRED={u:'03818244200',p:'218939'};
+function doLogin(){
+  const u=document.getElementById('fu').value.trim();
+  const p=document.getElementById('fp').value.trim();
+  const e=document.getElementById('err');
+  const btn=document.getElementById('btnLogin');
+  if(u===CRED.u&&p===CRED.p){
+    e.classList.remove('on');btn.disabled=true;
+    btn.textContent='✓ Acesso autorizado';
+    btn.style.background='linear-gradient(135deg,#059669,#10b981)';
+    setTimeout(()=>{
+      const ls=document.getElementById('login-screen');
+      const hs=document.getElementById('hub-screen');
+      ls.classList.add('hiding');hs.style.display='flex';
+      void hs.offsetWidth;hs.classList.add('visible');
+      setTimeout(()=>{ls.style.display='none';},600);
+    },700);
+  }else{
+    e.classList.add('on');
+    document.getElementById('fp').value='';document.getElementById('fp').focus();
+    const fw=document.getElementById('fp').closest('.finput');
+    fw.style.borderColor='rgba(248,113,113,.5)';fw.style.boxShadow='0 0 0 3px rgba(248,113,113,.08)';
+    setTimeout(()=>{fw.style.borderColor='';fw.style.boxShadow='';},1500);
+  }
+}
+function doLogout(){
+  const ls=document.getElementById('login-screen');
+  const hs=document.getElementById('hub-screen');
+  hs.classList.remove('visible');
+  setTimeout(()=>{
+    hs.style.display='none';ls.style.display='flex';ls.classList.remove('hiding');
+    document.getElementById('fu').value='';document.getElementById('fp').value='';
+    const btn=document.getElementById('btnLogin');
+    btn.disabled=false;btn.textContent='Acessar o Sistema';btn.style.background='';
+  },500);
+}
+function toggleEye(btn){const inp=document.getElementById('fp');const show=inp.type==='password';inp.type=show?'text':'password';btn.style.color=show?'var(--orange)':'';}
+function filterCards(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.sys-card').forEach(c=>{
+    const t=(c.dataset.name||'')+c.querySelector('.card-name').textContent.toLowerCase();
+    c.style.display=t.includes(q)?'':'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(s=>{
+    const v=[...s.querySelectorAll('.sys-card')].some(c=>c.style.display!=='none');
+    s.style.display=v?'':'none';
+  });
+}
+function tick(){
+  const now=new Date();
+  const t=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const d=now.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+  const el=document.getElementById('hubClock');
+  const sd=document.getElementById('statDate');
+  if(el)el.textContent=t;if(sd)sd.textContent=d;
+}
+tick();setInterval(tick,1000);
+document.getElementById('fu').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('fp').focus();});
+document.getElementById('fp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+/* Card entrance stagger */
+const css=document.createElement('style');
+css.textContent=`@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}`;
+document.head.appendChild(css);
+const io=new IntersectionObserver(entries=>{
+  entries.forEach((en,i)=>{
+    if(en.isIntersecting){en.target.style.animation=`cardIn .45s ${i*.04}s cubic-bezier(.34,1.4,.64,1) both`;io.unobserve(en.target);}
+  });
+},{threshold:.05});
+document.querySelectorAll('.sys-card').forEach(c=>io.observe(c));
+</script>
+</body>
+</html>
