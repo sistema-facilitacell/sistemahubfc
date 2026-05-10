@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilita Cell — Sistema Integrado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF6B00;
+  --orange-light: #FF8C33;
+  --orange-dim: rgba(255,107,0,.12);
+  --orange-glow: rgba(255,107,0,.35);
+  --bg: #05050A;
+  --bg2: #080810;
+  --panel: #0C0C16;
+  --panel2: #10101C;
+  --panel3: #141420;
+  --border: rgba(255,107,0,.15);
+  --border2: rgba(255,255,255,.05);
+  --border3: rgba(255,255,255,.08);
+  --text: #EAE8F0;
+  --muted: #44445A;
+  --muted2: #7070A0;
+  --muted3: #9090C0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg); font-family: 'Outfit', sans-serif; color: var(--text); }
+
+/* ══════════════════════════════
+   NOISE TEXTURE OVERLAY
+══════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: .025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ══════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════ */
+#login-screen {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: stretch;
+  transition: opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1);
+}
+#login-screen.hiding { opacity: 0; transform: scale(.97) translateY(-8px); pointer-events: none; }
+
+.login-left {
+  width: 440px; flex-shrink: 0;
+  background: var(--panel);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 52px; position: relative; z-index: 2;
+  border-right: 1px solid var(--border2);
+}
+.login-left::before {
+  content: ''; position: absolute; top: -100px; right: -100px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,107,0,.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+.login-left::after {
+  content: ''; position: absolute; bottom: -80px; left: -80px;
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(255,107,0,.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.login-right {
+  flex: 1; position: relative; overflow: hidden;
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Animated background for login right */
+.lg-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(255,107,0,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 20% 70%, rgba(100,80,200,.04) 0%, transparent 55%);
+}
+.lg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,107,0,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,107,0,.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridDrift 25s linear infinite;
+}
+@keyframes gridDrift { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+
+.lg-particles {
+  position: absolute; inset: 0; overflow: hidden;
+}
+.lg-particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--orange);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat linear infinite;
+}
+@keyframes particleFloat {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  10% { opacity: .6; }
+  90% { opacity: .3; }
+  100% { transform: translateY(-50px) translateX(40px); opacity: 0; }
+}
+
+.lg-right-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 40px;
+  text-align: center;
+}
+
+.lg-emblem {
+  position: relative;
+  width: 100px; height: 100px;
+}
+.lg-emblem-ring {
+  position: absolute; inset: 0;
+  border: 1px solid rgba(255,107,0,.3);
+  border-radius: 50%;
+  animation: ringPulse 3s ease-in-out infinite;
+}
+.lg-emblem-ring:nth-child(2) {
+  inset: -12px;
+  border-color: rgba(255,107,0,.15);
+  animation-delay: .5s;
+}
+.lg-emblem-ring:nth-child(3) {
+  inset: -26px;
+  border-color: rgba(255,107,0,.07);
+  animation-delay: 1s;
+}
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: .7; }
+}
+.lg-emblem-core {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,107,0,.2) 0%, rgba(255,107,0,.05) 100%);
+  border: 1.5px solid rgba(255,107,0,.4);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+  animation: floatY 6s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(255,107,0,.15), inset 0 0 30px rgba(255,107,0,.05);
+}
+@keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+.lg-tagline {
+  font-size: 32px; font-weight: 800; color: #fff;
+  letter-spacing: -1px; line-height: 1.15;
+}
+.lg-tagline em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(255,107,0,.4));
+}
+
+.lg-badges {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  max-width: 360px;
+}
+.lg-badge {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 11px; font-weight: 600; letter-spacing: .5px;
+  color: var(--muted3);
+  backdrop-filter: blur(10px);
+}
+
+/* Login form */
+.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 44px; animation: fadeUp .5s ease both; }
+.brand-ico {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, rgba(255,107,0,.2), rgba(255,107,0,.05));
+  border: 1.5px solid rgba(255,107,0,.3);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange); flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(255,107,0,.15);
+}
+.brand-text {}
+.b1 { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); display: block; margin-bottom: 2px; }
+.brand-name { display: flex; gap: 5px; }
+.b2 { font-size: 18px; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: -0.5px; }
+.b3 { font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--orange); letter-spacing: -0.5px; }
+
+.heading { margin-bottom: 28px; animation: fadeUp .5s .1s ease both; }
+.heading h1 { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 5px; letter-spacing: -.5px; }
+.heading p { font-size: 13.5px; color: var(--muted2); font-weight: 400; }
+
+.divider { width: 40px; height: 2px; background: linear-gradient(90deg, var(--orange), transparent); border-radius: 2px; margin-bottom: 28px; animation: fadeUp .5s .15s ease both; }
+
+.field { margin-bottom: 16px; animation: fadeUp .5s ease both; }
+.field:nth-child(1) { animation-delay: .2s; }
+.field:nth-child(2) { animation-delay: .26s; }
+.field label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted2); margin-bottom: 8px; }
+
+.fw {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.025);
+  border: 1px solid var(--border3);
+  border-radius: 12px; padding: 0 16px;
+  transition: border-color .25s, box-shadow .25s, background .25s;
+}
+.fw:focus-within {
+  border-color: rgba(255,107,0,.5);
+  background: rgba(255,107,0,.04);
+  box-shadow: 0 0 0 3px rgba(255,107,0,.08), 0 2px 20px rgba(0,0,0,.3);
+}
+.fw .ico { color: var(--orange); display: flex; align-items: center; flex-shrink: 0; margin-right: 12px; opacity: .7; }
+.fw input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 400;
+  padding: 14px 0;
+}
+.fw input::placeholder { color: var(--muted); }
+.eye { background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; padding: 0; transition: color .2s; }
+.eye:hover { color: var(--orange); }
+
+.forgot-row { display: flex; justify-content: flex-end; margin: -4px 0 24px; animation: fadeUp .5s .3s ease both; }
+.forgot-row a { font-size: 12px; color: var(--orange); text-decoration: none; opacity: .65; transition: opacity .2s; font-weight: 500; }
+.forgot-row a:hover { opacity: 1; }
+
+.btn-login {
+  width: 100%; height: 52px;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF9200 100%);
+  border: none; border-radius: 12px; color: #fff;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  box-shadow: 0 4px 30px rgba(255,107,0,.35), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: transform .18s, box-shadow .2s, filter .2s;
+  animation: fadeUp .5s .35s ease both;
+  position: relative; overflow: hidden;
+}
+.btn-login::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, transparent 50%);
+  border-radius: 12px;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,107,0,.5), inset 0 1px 0 rgba(255,255,255,.2); }
+.btn-login:active { transform: scale(.98); }
+.btn-login:disabled { cursor: not-allowed; filter: brightness(.8); }
+
+.err { display: none; margin-top: 12px; padding: 10px 14px; background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.2); border-radius: 10px; color: #fc8181; font-size: 12.5px; text-align: center; font-weight: 500; }
+.err.on { display: block; }
+
+.form-footer { margin-top: 32px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; animation: fadeUp .5s .4s ease both; }
+.form-footer svg { color: rgba(255,107,0,.35); flex-shrink: 0; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══════════════════════════════
+   HUB SCREEN
+══════════════════════════════ */
+#hub-screen {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; opacity: 0;
+  transition: opacity .5s ease;
+  background: var(--bg);
+  flex-direction: column;
+  overflow: hidden;
+}
+#hub-screen.visible { opacity: 1; }
+
+/* ── TOPBAR ── */
+.hub-topbar {
+  height: 60px; flex-shrink: 0;
+  background: rgba(12,12,22,.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; padding: 0 28px;
+  gap: 16px; position: relative; z-index: 10;
+}
+.hub-topbar-brand { display: flex; align-items: center; gap: 10px; }
+.hub-topbar-ico {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, rgba(255,107,0,.2), rgba(255,107,0,.05));
+  border: 1px solid rgba(255,107,0,.3);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  color: var(--orange); flex-shrink: 0;
+}
+.hub-topbar-name { font-size: 16px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: -.3px; }
+.hub-topbar-name span { color: var(--orange); }
+.hub-topbar-sep { width: 1px; height: 22px; background: var(--border2); margin: 0 6px; }
+.hub-topbar-title { font-size: 12px; color: var(--muted2); font-weight: 500; }
+.hub-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.hub-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 600; color: var(--orange);
+  letter-spacing: 1px;
+  background: rgba(255,107,0,.07);
+  border: 1px solid rgba(255,107,0,.15);
+  border-radius: 8px; padding: 4px 10px;
+}
+.hub-user { display: flex; align-items: center; gap: 9px; }
+.hub-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,107,0,.25), rgba(255,107,0,.08));
+  border: 1.5px solid rgba(255,107,0,.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--orange);
+  letter-spacing: .5px;
+}
+.hub-username { font-size: 13px; font-weight: 600; color: var(--muted3); }
+.btn-logout {
+  background: none; border: 1px solid var(--border3);
+  border-radius: 9px; padding: 6px 12px; cursor: pointer;
+  color: var(--muted2); font-size: 12px; font-family: 'Outfit', sans-serif; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.btn-logout:hover { color: #fc8181; border-color: rgba(248,113,113,.25); background: rgba(248,113,113,.05); }
+
+/* ── HEADER SECTION ── */
+.hub-header {
+  padding: 28px 28px 0;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 20px; flex-shrink: 0;
+}
+.hub-greeting-block {}
+.hub-greeting {
+  font-size: 22px; font-weight: 800; color: #fff;
+  letter-spacing: -.5px; margin-bottom: 4px;
+}
+.hub-greeting span { color: var(--orange); }
+.hub-sub { font-size: 13px; color: var(--muted2); font-weight: 400; }
+
+/* Search */
+.search-wrap {
+  background: var(--panel2);
+  border: 1px solid var(--border3);
+  border-radius: 12px; padding: 0 16px;
+  display: flex; align-items: center; gap: 10px;
+  transition: border-color .2s, box-shadow .2s;
+  min-width: 260px;
+}
+.search-wrap:focus-within { border-color: rgba(255,107,0,.4); box-shadow: 0 0 0 3px rgba(255,107,0,.06); }
+.search-wrap input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 400;
+  padding: 11px 0; width: 200px;
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-wrap svg { color: var(--muted); flex-shrink: 0; }
+
+/* ── STATS BAR ── */
+.hub-stats {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 16px 28px 0;
+  flex-shrink: 0;
+}
+.stat-pill {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: 10px; padding: 8px 16px;
+  display: flex; align-items: center; gap: 10px;
+  transition: border-color .2s;
+}
+.stat-pill:hover { border-color: var(--border3); }
+.stat-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange-glow);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+.stat-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; color: #fff; }
+.stat-label { font-size: 11.5px; color: var(--muted2); font-weight: 500; }
+
+/* ── BODY ── */
+.hub-body {
+  flex: 1; overflow-y: auto;
+  padding: 20px 28px 40px;
+  display: flex; flex-direction: column; gap: 28px;
+  scroll-behavior: smooth;
+}
+.hub-body::-webkit-scrollbar { width: 4px; }
+.hub-body::-webkit-scrollbar-track { background: transparent; }
+.hub-body::-webkit-scrollbar-thumb { background: #1a1a30; border-radius: 2px; }
+
+/* ── CATEGORY ── */
+.cat-section {}
+.cat-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted2); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.cat-label-icon {
+  font-size: 14px; line-height: 1;
+  width: 28px; height: 28px;
+  background: var(--panel3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.cat-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border2), transparent); }
+
+/* ══════════════════════════════
+   PREMIUM CARDS
+══════════════════════════════ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.sys-card {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none; color: inherit;
+  position: relative; overflow: hidden;
+  transition: border-color .28s, transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s;
+  display: flex; flex-direction: column;
+}
+
+/* Top shimmer line */
+.sys-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-color, var(--orange)), transparent);
+  opacity: 0;
+  transition: opacity .28s;
+}
+
+/* Bottom glow */
+.sys-card::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 60%;
+  background: linear-gradient(to top, rgba(0,0,0,.4), transparent);
+  pointer-events: none;
+}
+
+.sys-card:hover {
+  border-color: rgba(255,255,255,.12);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px var(--card-color, var(--orange)) inset, 0 0 30px -8px var(--card-color, var(--orange));
+}
+.sys-card:hover::before { opacity: 1; }
+
+/* Card inner glow bg */
+.card-glow-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--card-bg, rgba(255,107,0,.08)) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.sys-card:hover .card-glow-bg { opacity: 1; }
+
+.card-inner {
+  position: relative; z-index: 1;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  height: 100%;
+}
+
+.card-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+
+.card-ico-wrap {
+  position: relative;
+}
+.card-ico {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card-bg, rgba(255,107,0,.1));
+  border: 1px solid rgba(255,255,255,.06);
+  font-size: 20px;
+  transition: transform .28s cubic-bezier(.34,1.56,.64,1);
+}
+.sys-card:hover .card-ico { transform: scale(1.08) rotate(-3deg); }
+
+.card-arrow {
+  color: var(--border2);
+  transition: color .25s, transform .25s;
+  flex-shrink: 0; margin-top: 3px;
+  opacity: .4;
+}
+.sys-card:hover .card-arrow { color: var(--card-color, var(--orange)); transform: translate(3px,-3px); opacity: 1; }
+
+.card-body {}
+.card-name {
+  font-size: 15px; font-weight: 700; color: #E8E6F2;
+  line-height: 1.2; margin-bottom: 6px; letter-spacing: -.2px;
+  transition: color .2s;
+}
+.sys-card:hover .card-name { color: #fff; }
+.card-desc { font-size: 12px; color: var(--muted2); line-height: 1.55; font-weight: 400; }
+
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto; padding-top: 6px;
+}
+.card-tag {
+  display: inline-flex; align-items: center;
+  background: var(--card-bg, rgba(255,107,0,.1));
+  color: var(--card-color, var(--orange));
+  font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.04);
+}
+
+.card-shine {
+  position: absolute; top: -50%; left: -60%;
+  width: 40%; height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.04) 50%, transparent 60%);
+  transition: left .6s;
+  pointer-events: none;
+}
+.sys-card:hover .card-shine { left: 150%; }
+
+/* ── RESPONSIVE ── */
+@media(max-width: 700px) {
+  .login-left { width: 100%; padding: 40px 24px 50px; }
+  .login-right { display: none; }
+  html, body { overflow: auto; height: auto; }
+  #login-screen { position: relative; flex-direction: column; min-height: 100vh; }
+  .hub-topbar { padding: 0 16px; }
+  .hub-header, .hub-body, .hub-stats { padding-left: 16px; padding-right: 16px; }
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-left">
+    <div class="brand">
+      <div class="brand-ico">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".15"/>
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="b1">Sistemas Integrados</span>
+        <div class="brand-name"><span class="b2">FACILITA</span><span class="b3">CELL</span></div>
+      </div>
+    </div>
+
+    <div class="heading">
+      <h1>Bem-vindo de volta</h1>
+      <p>Acesse sua conta para continuar</p>
+    </div>
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="fu">Usuário</label>
+      <div class="fw">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <input id="fu" type="text" placeholder="Digite seu usuário" autocomplete="username"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fp">Senha</label>
+      <div class="fw">
+        <span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <input id="fp" type="password" placeholder="Digite sua senha" autocomplete="current-password"/>
+        <button class="eye" onclick="toggleEye(this)" aria-label="Ver senha">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="forgot-row"><a href="#">Esqueci minha senha?</a></div>
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no sistema</button>
+    <div class="err" id="err">Usuário ou senha inválidos. Tente novamente.</div>
+
+    <div class="form-footer">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Conexão segura · Facilita Cell © 2025
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="lg-bg"></div>
+    <div class="lg-grid"></div>
+    <div class="lg-particles" id="lgParticles"></div>
+    <div class="lg-right-content">
+      <div class="lg-emblem">
+        <div class="lg-emblem-ring"></div>
+        <div class="lg-emblem-ring"></div>
+        <div class="lg-emblem-ring"></div>
+        <div class="lg-emblem-core">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".2"/>
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+            <path d="M9 12l2 2 4-4" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="lg-tagline">Hub Central<em>Facilita Cell</em></div>
+      <div class="lg-badges">
+        <div class="lg-badge">Financeiro</div>
+        <div class="lg-badge">Vendas</div>
+        <div class="lg-badge">Estoque</div>
+        <div class="lg-badge">Recursos Humanos</div>
+        <div class="lg-badge">Contratos</div>
+        <div class="lg-badge">Analytics</div>
+        <div class="lg-badge">Sorteio</div>
+        <div class="lg-badge">Crédito</div>
+        <div class="lg-badge">Fiscal</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HUB ══════════════ -->
+<div id="hub-screen">
+
+  <!-- Topbar -->
+  <div class="hub-topbar">
+    <div class="hub-topbar-brand">
+      <div class="hub-topbar-ico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="hub-topbar-name">FACILITA <span>CELL</span></div>
+    </div>
+    <div class="hub-topbar-sep"></div>
+    <div class="hub-topbar-title">Hub de Sistemas</div>
+    <div class="hub-topbar-right">
+      <div class="hub-clock" id="hubClock">00:00</div>
+      <div class="hub-user">
+        <div class="hub-avatar">FC</div>
+        <div class="hub-username">Administrador</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <!-- Header + Search -->
+  <div class="hub-header">
+    <div class="hub-greeting-block">
+      <div class="hub-greeting">Olá, <span>Facilita Cell</span> 👋</div>
+      <div class="hub-sub">Selecione um sistema para acessar</div>
+    </div>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Buscar sistema..." id="searchInput" oninput="filterCards()"/>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="hub-stats">
+    <div class="stat-pill">
+      <div class="stat-dot"></div>
+      <div class="stat-val">15</div>
+      <div class="stat-label">Sistemas ativos</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-dot" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.5)"></div>
+      <div class="stat-val" style="color:#4ade80">Online</div>
+      <div class="stat-label">Status geral</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-dot" style="background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.5)"></div>
+      <div class="stat-val" id="statDate" style="color:#60a5fa">--/--</div>
+      <div class="stat-label">Data atual</div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="hub-body" id="hubBody">
+
+    <!-- FINANCEIRO & CRÉDITO -->
+    <div class="cat-section" data-cat="financeiro">
+      <div class="cat-label">
+        <div class="cat-label-icon">💰</div>
+        Financeiro &amp; Crédito
+      </div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://financred-facilitacell.netlify.app" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.12)" data-name="financred financiamento crédito celulares">
+          <div class="card-glow-bg"></div>
+          <div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">💳</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">FinanCred</div>
+              <div class="card-desc">Financiamento inteligente de celulares com aprovação automatizada</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag">Financiamento</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/LUCROCELL/" target="_blank"
+           style="--card-color:#F59E0B;--card-bg:rgba(245,158,11,.12)" data-name="lucrocell lucro controladoria precificação margem">
+          <div class="card-glow-bg"></div>
+          <div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">📈</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">LucroCell</div>
+              <div class="card-desc">Sistema de controladoria, precificação e análise de margem de lucro</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#F59E0B;--card-bg:rgba(245,158,11,.12)">Controladoria</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://salario-comissao-calculadora.netlify.app" target="_blank"
+           style="--card-color:#4ADE80;--card-bg:rgba(74,222,128,.1)" data-name="salário comissão calculadora folha pagamento">
+          <div class="card-glow-bg"></div>
+          <div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🧮</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Calculadora Salário</div>
+              <div class="card-desc">Cálculo de salários, comissões e remuneração variável da equipe</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#4ADE80;--card-bg:rgba(74,222,128,.1)">Comissões</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/simuladorpaymobi/" target="_blank"
+           style="--card-color:#C084FC;--card-bg:rgba(192,132,252,.1)" data-name="simulador paymobi pagamento parcelas">
+          <div class="card-glow-bg"></div>
+          <div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">📱</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Simulador PayMobi</div>
+              <div class="card-desc">Simulação de parcelamentos e condições de pagamento PayMobi</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#C084FC;--card-bg:rgba(192,132,252,.1)">Simulador</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/consultapayjoy/" target="_blank"
+           style="--card-color:#22D3EE;--card-bg:rgba(34,211,238,.1)" data-name="consulta payjoy financeira crédito">
+          <div class="card-glow-bg"></div>
+          <div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🔍</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Consulta PayJoy</div>
+              <div class="card-desc">Consulta de status e informações de financiamentos PayJoy</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#22D3EE;--card-bg:rgba(34,211,238,.1)">Consulta</div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- RH & COLABORADORES -->
+    <div class="cat-section" data-cat="rh">
+      <div class="cat-label">
+        <div class="cat-label-icon">👥</div>
+        RH &amp; Colaboradores
+      </div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/portal/" target="_blank"
+           style="--card-color:#60A5FA;--card-bg:rgba(96,165,250,.1)" data-name="portal colaborador funcionário documentos benefícios">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">👤</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Portal do Colaborador</div>
+              <div class="card-desc">Documentos, contracheques, benefícios e informações pessoais</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#60A5FA;--card-bg:rgba(96,165,250,.1)">Colaborador</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://rhdigitalfacilita-create.github.io/rhdigitalfacilita.github.io/" target="_blank"
+           style="--card-color:#F87171;--card-bg:rgba(248,113,113,.1)" data-name="rh digital recursos humanos gestão">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🏢</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">RH Digital</div>
+              <div class="card-desc">Gestão digital completa de recursos humanos da Facilita Cell</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#F87171;--card-bg:rgba(248,113,113,.1)">RH</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofacilitacell/" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.1)" data-name="recrutamento seleção candidatos vagas">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🎯</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Recrutamento</div>
+              <div class="card-desc">Processo seletivo, triagem de candidatos e gestão de vagas</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag">Seleção</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/recrutamentofase1/" target="_blank"
+           style="--card-color:#FB923C;--card-bg:rgba(251,146,60,.1)" data-name="recrutamento fase 1 candidato etapa">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">📋</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Recrutamento Fase 1</div>
+              <div class="card-desc">Primeira etapa do processo seletivo e captação de candidatos</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#FB923C;--card-bg:rgba(251,146,60,.1)">Fase 1</div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- JURÍDICO & CONTRATOS -->
+    <div class="cat-section" data-cat="juridico">
+      <div class="cat-label">
+        <div class="cat-label-icon">📄</div>
+        Jurídico &amp; Contratos
+      </div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://contratos-facilita-cell.netlify.app/" target="_blank"
+           style="--card-color:#4ADE80;--card-bg:rgba(74,222,128,.1)" data-name="contratos documentos assinatura jurídico">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">📝</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Contratos</div>
+              <div class="card-desc">Criação, assinatura e acompanhamento de contratos e documentos legais</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#4ADE80;--card-bg:rgba(74,222,128,.1)">Jurídico</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/contratosfuncionariosfacilita/" target="_blank"
+           style="--card-color:#60A5FA;--card-bg:rgba(96,165,250,.1)" data-name="contratos funcionários CLT trabalhista">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🤝</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Contratos Funcionários</div>
+              <div class="card-desc">Gestão de contratos trabalhistas e documentação de colaboradores</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#60A5FA;--card-bg:rgba(96,165,250,.1)">CLT</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistemarecrutamento-creator.github.io/consultacpf/" target="_blank"
+           style="--card-color:#F472B6;--card-bg:rgba(244,114,182,.1)" data-name="consulta cpf verificação cadastro cliente">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🔐</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Consulta CPF</div>
+              <div class="card-desc">Verificação e consulta de CPF para cadastro de clientes e funcionários</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#F472B6;--card-bg:rgba(244,114,182,.1)">Consulta</div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- MARKETING & OPERAÇÕES -->
+    <div class="cat-section" data-cat="marketing">
+      <div class="cat-label">
+        <div class="cat-label-icon">🚀</div>
+        Marketing &amp; Operações
+      </div>
+      <div class="cards-grid">
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/SORTEIOFACILITACELL/" target="_blank"
+           style="--card-color:#A78BFA;--card-bg:rgba(167,139,250,.1)" data-name="sorteio promoção marketing campanha">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🎰</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Sorteio Facilita Cell</div>
+              <div class="card-desc">Sistema de sorteios e campanhas promocionais para clientes</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#A78BFA;--card-bg:rgba(167,139,250,.1)">Promoção</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/colaboradores/" target="_blank"
+           style="--card-color:#FF6B00;--card-bg:rgba(255,107,0,.1)" data-name="hub central sistemas colaboradores">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🏠</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Hub Colaboradores</div>
+              <div class="card-desc">Central de acesso aos sistemas internos para colaboradores</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag">Hub</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="sys-card" href="https://sistema-facilitacell.github.io/" target="_blank"
+           style="--card-color:#22D3EE;--card-bg:rgba(34,211,238,.1)" data-name="site facilita cell principal home">
+          <div class="card-glow-bg"></div><div class="card-shine"></div>
+          <div class="card-inner">
+            <div class="card-head">
+              <div class="card-ico-wrap"><div class="card-ico">🌐</div></div>
+              <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+            <div class="card-body">
+              <div class="card-name">Site Facilita Cell</div>
+              <div class="card-desc">Portal principal da Facilita Cell com informações institucionais</div>
+            </div>
+            <div class="card-footer">
+              <div class="card-tag" style="--card-color:#22D3EE;--card-bg:rgba(34,211,238,.1)">Site</div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </div><!-- /hub-body -->
+</div><!-- /hub-screen -->
+
+<script>
+const CRED = { u: '03818244200', p: '218939' };
+
+function doLogin() {
+  const u = document.getElementById('fu').value.trim();
+  const p = document.getElementById('fp').value.trim();
+  const e = document.getElementById('err');
+  const btn = document.getElementById('btnLogin');
+
+  if (u === CRED.u && p === CRED.p) {
+    e.classList.remove('on');
+    btn.disabled = true;
+    btn.textContent = '✓ Acesso autorizado';
+    btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+
+    setTimeout(() => {
+      const ls = document.getElementById('login-screen');
+      const hs = document.getElementById('hub-screen');
+      ls.classList.add('hiding');
+      hs.style.display = 'flex';
+      void hs.offsetWidth;
+      hs.classList.add('visible');
+      setTimeout(() => { ls.style.display = 'none'; }, 600);
+    }, 700);
+
+  } else {
+    e.classList.add('on');
+    document.getElementById('fp').value = '';
+    document.getElementById('fp').focus();
+    const fw = document.getElementById('fp').closest('.fw');
+    fw.style.borderColor = 'rgba(248,113,113,.6)';
+    fw.style.boxShadow = '0 0 0 3px rgba(248,113,113,.1)';
+    setTimeout(() => { fw.style.borderColor = ''; fw.style.boxShadow = ''; }, 1500);
+  }
+}
+
+function doLogout() {
+  const ls = document.getElementById('login-screen');
+  const hs = document.getElementById('hub-screen');
+  hs.classList.remove('visible');
+  setTimeout(() => {
+    hs.style.display = 'none';
+    ls.style.display = 'flex';
+    ls.classList.remove('hiding');
+    document.getElementById('fu').value = '';
+    document.getElementById('fp').value = '';
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = false;
+    btn.textContent = 'Entrar no sistema';
+    btn.style.background = '';
+  }, 500);
+}
+
+function toggleEye(btn) {
+  const inp = document.getElementById('fp');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.color = show ? 'var(--orange)' : '';
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.sys-card').forEach(card => {
+    const name = (card.dataset.name || '') + card.querySelector('.card-name').textContent.toLowerCase();
+    card.style.display = name.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('.sys-card')].some(c => c.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+}
+
+// Clock
+function tick() {
+  const now = new Date();
+  const t = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const d = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const el = document.getElementById('hubClock');
+  const sd = document.getElementById('statDate');
+  if (el) el.textContent = t;
+  if (sd) sd.textContent = d;
+}
+tick();
+setInterval(tick, 1000);
+
+// Enter key
+document.getElementById('fu').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('fp').focus(); });
+document.getElementById('fp').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// Floating particles
+(function() {
+  const container = document.getElementById('lgParticles');
+  if (!container) return;
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'lg-particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      width: ${Math.random() * 2 + 1}px;
+      height: ${Math.random() * 2 + 1}px;
+      animation-duration: ${Math.random() * 15 + 10}s;
+      animation-delay: ${Math.random() * -20}s;
+      opacity: ${Math.random() * 0.5};
+    `;
+    container.appendChild(p);
+  }
+})();
+
+// Card entrance animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      entry.target.style.animation = `cardIn .4s ${i * 0.05}s cubic-bezier(.34,1.56,.64,1) both`;
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+const style = document.createElement('style');
+style.textContent = `@keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }`;
+document.head.appendChild(style);
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.sys-card').forEach(card => observer.observe(card));
+});
+</script>
+</body>
+</html>
