@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilita Cell — Sistema Integrado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF6B00;
+  --orange-dim: rgba(255,107,0,.18);
+  --orange-glow: rgba(255,107,0,.35);
+  --bg: #080809;
+  --panel: #0e0e10;
+  --border: rgba(255,107,0,.15);
+  --text: #f0ede8;
+  --muted: #666;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+}
+
+.root {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ═══ RIGHT — VISUAL ═══ */
+.visual {
+  flex: 1;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #07080a;
+}
+.visual-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,107,0,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,107,0,.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: gridDrift 22s linear infinite;
+}
+@keyframes gridDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 48px 48px; }
+}
+.visual-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 680px; height: 680px;
+  background: radial-gradient(circle, rgba(255,107,0,.11) 0%, transparent 65%);
+  pointer-events: none;
+  animation: pulse 4.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: translate(-50%,-50%) scale(1); }
+  50%      { transform: translate(-50%,-50%) scale(1.07); }
+}
+.visual-svg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.visual-svg svg {
+  width: min(560px, 88%);
+  height: auto;
+  filter: drop-shadow(0 0 36px rgba(255,107,0,.18));
+  animation: floatY 5.5s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-13px); }
+}
+.visual::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 110px; height: 100%;
+  background: linear-gradient(to right, var(--panel) 0%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+.visual-label {
+  position: absolute;
+  bottom: 28px; right: 32px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,107,0,.35);
+  z-index: 3;
+}
+
+/* ═══ LEFT — FORM ═══ */
+.form-panel {
+  flex-shrink: 0;
+  width: 440px;
+  height: 100vh;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 48px;
+  position: relative;
+  z-index: 4;
+  box-shadow: 4px 0 60px rgba(0,0,0,.55);
+}
+.form-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle at top right, rgba(255,107,0,.09) 0%, transparent 65%);
+  pointer-events: none;
+}
+.form-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle at bottom left, rgba(255,107,0,.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* brand */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 42px;
+  animation: fadeUp .5s ease both;
+}
+.brand-icon {
+  width: 46px; height: 46px;
+  background: var(--orange-dim);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+.brand-copy { line-height: 1.2; }
+.brand-copy span { display: block; }
+.b1 { font-size: 9.5px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.b2 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; text-transform: uppercase; color: #fff; letter-spacing: .5px; }
+.b3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; text-transform: uppercase; color: var(--orange); letter-spacing: .5px; text-shadow: 0 0 18px var(--orange-glow); }
+
+/* heading */
+.heading { margin-bottom: 28px; animation: fadeUp .5s .1s ease both; }
+.heading h1 { font-family: 'Syne', sans-serif; font-size: 29px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+.heading p  { font-size: 13.5px; color: var(--muted); }
+
+/* divider */
+.divider {
+  width: 38px; height: 3px;
+  background: var(--orange);
+  border-radius: 2px;
+  margin-bottom: 28px;
+  box-shadow: 0 0 12px var(--orange-glow);
+  animation: fadeUp .5s .15s ease both;
+}
+
+/* field */
+.field { margin-bottom: 18px; animation: fadeUp .5s ease both; }
+.field:nth-child(1) { animation-delay: .2s; }
+.field:nth-child(2) { animation-delay: .26s; }
+.field label { display: block; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 7px; }
+.field-wrap {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 0 16px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field-wrap:focus-within {
+  border-color: var(--orange);
+  background: rgba(255,107,0,.04);
+  box-shadow: 0 0 0 3px rgba(255,107,0,.1);
+}
+.field-wrap .ico { color: var(--orange); display: flex; align-items: center; flex-shrink: 0; margin-right: 12px; opacity: .8; }
+.field-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 14px; padding: 14px 0;
+}
+.field-wrap input::placeholder { color: #2a2a2c; }
+.eye { background: none; border: none; cursor: pointer; color: #333; display: flex; align-items: center; padding: 0; transition: color .2s; }
+.eye:hover { color: var(--orange); }
+
+/* forgot */
+.forgot-row { display: flex; justify-content: flex-end; margin: -5px 0 24px; animation: fadeUp .5s .3s ease both; }
+.forgot-row a { font-size: 12px; color: var(--orange); text-decoration: none; opacity: .8; transition: opacity .2s; }
+.forgot-row a:hover { opacity: 1; text-decoration: underline; }
+
+/* button */
+.btn-login {
+  width: 100%; height: 52px;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF9500 100%);
+  border: none; border-radius: 12px;
+  color: #000; font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 28px rgba(255,107,0,.38), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform .16s, box-shadow .2s, filter .2s;
+  animation: fadeUp .5s .35s ease both;
+  position: relative; overflow: hidden;
+}
+.btn-login::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 55%);
+  border-radius: 12px;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,107,0,.52); filter: brightness(1.07); }
+.btn-login:active { transform: scale(.98); }
+
+/* error */
+.err { display: none; margin-top: 12px; padding: 10px 14px; background: rgba(200,40,40,.08); border: 1px solid rgba(200,40,40,.2); border-radius: 9px; color: #f87; font-size: 12.5px; text-align: center; }
+.err.on { display: block; }
+
+/* footer */
+.form-footer { margin-top: 32px; display: flex; align-items: center; gap: 8px; color: #2e2e30; font-size: 11px; animation: fadeUp .5s .4s ease both; }
+.form-footer svg { color: rgba(255,107,0,.35); flex-shrink: 0; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 800px) {
+  html,body { overflow: auto; }
+  .root { flex-direction: column-reverse; height: auto; }
+  .form-panel { width: 100%; height: auto; padding: 48px 28px 56px; }
+  .visual { height: 260px; width: 100%; }
+  .visual::before { width: 100%; height: 80px; top: auto; bottom: 0; background: linear-gradient(to top, var(--panel) 0%, transparent 100%); }
+}
+</style>
+</head>
+<body>
+<div id="login-screen" style="display:flex;width:100%;height:100%;"><div class="root" style="width:100%;height:100%;">
+
+  <!-- FORM -->
+  <div class="form-panel">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="currentColor" opacity=".2"/>
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <span class="b1">Sistemas</span>
+        <span class="b2">Integrado</span>
+        <span class="b3">Facilita Cell</span>
+      </div>
+    </div>
+
+    <div class="heading">
+      <h1>Bem-vindo de volta</h1>
+      <p>Acesse sua conta para continuar</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="fu">Usuário</label>
+      <div class="field-wrap">
+        <span class="ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </span>
+        <input id="fu" type="text" placeholder="Digite seu usuário" autocomplete="username"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fp">Senha</label>
+      <div class="field-wrap">
+        <span class="ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input id="fp" type="password" placeholder="Digite sua senha" autocomplete="current-password"/>
+        <button class="eye" onclick="toggleEye(this)" aria-label="Ver senha">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="forgot-row"><a href="#">Esqueci minha senha?</a></div>
+
+    <button class="btn-login" onclick="doLogin()">Entrar no sistema</button>
+    <div class="err" id="err">Usuário ou senha inválidos. Tente novamente.</div>
+
+    <div class="form-footer">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Conexão segura · Facilita Cell © 2025
+    </div>
+  </div>
+
+  <!-- VISUAL -->
+  <div class="visual">
+    <div class="visual-bg"></div>
+    <div class="visual-glow"></div>
+    <div class="visual-svg">
+      <svg viewBox="0 0 560 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="cg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FF6B00" stop-opacity=".2"/>
+            <stop offset="100%" stop-color="#FF6B00" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="ng" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1c1108"/>
+            <stop offset="100%" stop-color="#0c0b0a"/>
+          </radialGradient>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="sg" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="7" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- ambient glow -->
+        <circle cx="280" cy="240" r="215" fill="url(#cg)"/>
+
+        <!-- orbit rings -->
+        <ellipse cx="280" cy="240" rx="198" ry="198" stroke="#FF6B00" stroke-width=".9" stroke-dasharray="6 6" opacity=".17"/>
+        <ellipse cx="280" cy="240" rx="155" ry="155" stroke="#FF6B00" stroke-width=".6" stroke-dasharray="3 9" opacity=".11"/>
+
+        <!-- ── connector lines ── -->
+        <line x1="280" y1="190" x2="280" y2="100" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="332" y1="212" x2="408" y2="148" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="332" y1="240" x2="422" y2="240" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="318" y1="284" x2="394" y2="350" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="280" y1="292" x2="280" y2="376" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="242" y1="284" x2="166" y2="350" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="228" y1="240" x2="138" y2="240" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+        <line x1="248" y1="212" x2="152" y2="148" stroke="#FF6B00" stroke-width="1.3" stroke-dasharray="5 4" opacity=".45"/>
+
+        <!-- endpoint dots -->
+        <circle cx="280" cy="100" r="4.5" fill="#FF6B00" opacity=".75" filter="url(#glow)"/>
+        <circle cx="422" cy="240" r="4.5" fill="#FF6B00" opacity=".75" filter="url(#glow)"/>
+        <circle cx="138" cy="240" r="4.5" fill="#FF6B00" opacity=".75" filter="url(#glow)"/>
+        <circle cx="280" cy="376" r="4.5" fill="#FF6B00" opacity=".75" filter="url(#glow)"/>
+
+        <!-- ── CENTER HUB ── -->
+        <rect x="228" y="188" width="104" height="104" rx="20" fill="#141209" stroke="#FF6B00" stroke-width="2" filter="url(#sg)"/>
+        <rect x="232" y="192" width="96" height="96" rx="17" fill="url(#ng)"/>
+        <text x="280" y="256" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="44" fill="#FF6B00" filter="url(#glow)">S</text>
+
+        <!-- ── MODULE CARDS (64×64 each) ── -->
+
+        <!-- TOP: FINANCEIRO (248, 62) -->
+        <g transform="translate(248,62)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">GESTÃO</text>
+          <rect x="13" y="34" width="8" height="16" rx="2" fill="#FF6B00" opacity=".45"/>
+          <rect x="23" y="26" width="8" height="24" rx="2" fill="#FF6B00" opacity=".65"/>
+          <rect x="33" y="30" width="8" height="20" rx="2" fill="#FF6B00" opacity=".55"/>
+          <rect x="43" y="22" width="8" height="28" rx="2" fill="#FF6B00" opacity=".8"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">FINANCEIRA</text>
+        </g>
+
+        <!-- TOP-RIGHT: VENDAS (404, 116) -->
+        <g transform="translate(404,116)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">VENDAS</text>
+          <circle cx="32" cy="35" r="9" stroke="#FF6B00" stroke-width="1.6" fill="none" opacity=".72"/>
+          <path d="M18 52c0-4.6 6.3-8 14-8s14 3.4 14 8" stroke="#FF6B00" stroke-width="1.6" fill="none" opacity=".72"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">E CRM</text>
+        </g>
+
+        <!-- RIGHT: ESTOQUE (422, 208) -->
+        <g transform="translate(422,208)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">ESTOQUE</text>
+          <path d="M16 30l16-9 16 9v16l-16 9-16-9V30z" stroke="#FF6B00" stroke-width="1.6" fill="none" opacity=".7"/>
+          <line x1="16" y1="30" x2="32" y2="39" stroke="#FF6B00" stroke-width="1" opacity=".4"/>
+          <line x1="48" y1="30" x2="32" y2="39" stroke="#FF6B00" stroke-width="1" opacity=".4"/>
+          <line x1="32" y1="39" x2="32" y2="55" stroke="#FF6B00" stroke-width="1" opacity=".4"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">SUPRIMENTOS</text>
+        </g>
+
+        <!-- BOTTOM-RIGHT: FISCAL (394, 350) -->
+        <g transform="translate(394,350)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">FISCAL</text>
+          <rect x="18" y="23" width="28" height="32" rx="4" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".7"/>
+          <line x1="24" y1="31" x2="40" y2="31" stroke="#FF6B00" stroke-width="1" opacity=".5"/>
+          <line x1="24" y1="37" x2="40" y2="37" stroke="#FF6B00" stroke-width="1" opacity=".5"/>
+          <line x1="24" y1="43" x2="34" y2="43" stroke="#FF6B00" stroke-width="1" opacity=".5"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">E CONTÁBIL</text>
+        </g>
+
+        <!-- BOTTOM: ANALYTICS (248, 376) -->
+        <g transform="translate(248,376)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">ANALYTICS</text>
+          <circle cx="32" cy="38" r="14" fill="none" stroke="#FF6B00" stroke-width="1" opacity=".2"/>
+          <path d="M32 24 A14 14 0 0 1 46 38 L32 38Z" fill="#FF6B00" opacity=".65"/>
+          <path d="M32 38 A14 14 0 0 1 20 50 L32 38Z" fill="#FF6B00" opacity=".38"/>
+          <path d="M32 38 A14 14 0 0 1 32 24 L32 38Z" fill="#FF6B00" opacity=".2"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">RELATÓRIOS</text>
+        </g>
+
+        <!-- BOTTOM-LEFT: RH (102, 350) -->
+        <g transform="translate(102,350)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">RECURSOS</text>
+          <circle cx="22" cy="31" r="8" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".65"/>
+          <path d="M10 52c0-3.5 5.4-6 12-6" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".65"/>
+          <circle cx="42" cy="31" r="8" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".4"/>
+          <path d="M42 46c6.6 0 12 2.5 12 6" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".4"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">HUMANOS</text>
+        </g>
+
+        <!-- LEFT: COMPRAS (74, 208) -->
+        <g transform="translate(74,208)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">COMPRAS</text>
+          <path d="M10 20h8l5 22h22l5-16H22" stroke="#FF6B00" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+          <circle cx="26" cy="46" r="3" fill="#FF6B00" opacity=".7"/>
+          <circle cx="42" cy="46" r="3" fill="#FF6B00" opacity=".7"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">FORNECEDOR</text>
+        </g>
+
+        <!-- TOP-LEFT: AUTOMAÇÃO (88, 116) -->
+        <g transform="translate(88,116)">
+          <rect width="64" height="64" rx="14" fill="#141209" stroke="#FF6B00" stroke-width="1.5"/>
+          <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#ng)" opacity=".95"/>
+          <text x="32" y="17" text-anchor="middle" font-family="'Syne',sans-serif" font-size="7.5" font-weight="700" fill="#FF6B00" letter-spacing=".8" opacity=".9">AUTOMAÇÃO</text>
+          <circle cx="32" cy="37" r="9" stroke="#FF6B00" stroke-width="1.5" fill="none" opacity=".7"/>
+          <circle cx="32" cy="37" r="3.5" fill="#FF6B00" opacity=".5"/>
+          <line x1="32" y1="23" x2="32" y2="27" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+          <line x1="32" y1="47" x2="32" y2="51" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+          <line x1="18" y1="37" x2="22" y2="37" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+          <line x1="42" y1="37" x2="46" y2="37" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+          <text x="32" y="59" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="6.5" fill="#666">PROCESSOS</text>
+        </g>
+
+        <!-- animated traveling dots -->
+        <circle r="3.5" fill="#FF6B00" opacity=".9" filter="url(#glow)">
+          <animateMotion dur="3s" repeatCount="indefinite" path="M280,190 L280,100"/>
+        </circle>
+        <circle r="3" fill="#FF6B00" opacity=".75" filter="url(#glow)">
+          <animateMotion dur="3.4s" repeatCount="indefinite" begin="1s" path="M332,240 L422,240"/>
+        </circle>
+        <circle r="3" fill="#FF6B00" opacity=".75" filter="url(#glow)">
+          <animateMotion dur="3.2s" repeatCount="indefinite" begin="0.5s" path="M228,240 L138,240"/>
+        </circle>
+        <circle r="3" fill="#FF6B00" opacity=".75" filter="url(#glow)">
+          <animateMotion dur="3.6s" repeatCount="indefinite" begin="1.8s" path="M280,292 L280,376"/>
+        </circle>
+      </svg>
+    </div>
+    <div class="visual-label">Sistema Integrado · Facilita Cell</div>
+  </div>
+
+</div></div>
+<script>
+const CRED = { u: '03818244200', p: '218939' };
+
+function doLogin() {
+  const u = document.getElementById('fu').value.trim();
+  const p = document.getElementById('fp').value.trim();
+  const e = document.getElementById('err');
+  if (u === CRED.u && p === CRED.p) {
+    e.classList.remove('on');
+    const btn = document.querySelector('.btn-login');
+    btn.textContent = '✓ Acesso autorizado';
+    btn.style.background = 'linear-gradient(135deg,#00c853,#00e676)';
+    setTimeout(() => {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard-screen').style.display = 'flex';
+      void document.getElementById('dashboard-screen').offsetWidth;
+      document.getElementById('dashboard-screen').classList.add('visible');
+    }, 700);
+  } else {
+    e.classList.add('on');
+    document.getElementById('fp').value = '';
+    document.getElementById('fp').focus();
+  }
+}
+
+function toggleEye(btn) {
+  const inp = document.getElementById('fp');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.color = show ? 'var(--orange)' : '';
+}
+
+function doLogout() {
+  document.getElementById('dashboard-screen').classList.remove('visible');
+  setTimeout(() => {
+    document.getElementById('dashboard-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('fu').value = '';
+    document.getElementById('fp').value = '';
+    const btn = document.querySelector('.btn-login');
+    btn.textContent = 'Entrar no sistema';
+    btn.style.background = '';
+  }, 400);
+}
+
+function setActiveNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+document.getElementById('fu').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('fp').focus(); });
+document.getElementById('fp').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+
+<!-- ═══ DASHBOARD ═══ -->
+<style>
+#dashboard-screen {
+  display: none;
+  opacity: 0;
+  transition: opacity .45s ease;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  flex-direction: row;
+}
+#dashboard-screen.visible { opacity: 1; }
+
+/* Sidebar */
+.dash-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 20px;
+}
+.dash-brand {
+  display: flex; align-items: center; gap: 11px;
+  padding: 0 22px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.dash-brand-icon {
+  width: 38px; height: 38px;
+  background: var(--orange-dim);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+.dash-brand-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: #fff; }
+.dash-brand-sub { font-size: 10px; color: var(--muted); }
+
+.nav-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: #333;
+  padding: 20px 22px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 22px;
+  cursor: pointer;
+  border-radius: 0;
+  color: #555;
+  font-size: 13px; font-weight: 500;
+  transition: color .18s, background .18s;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { color: #ccc; background: rgba(255,255,255,.03); }
+.nav-item.active {
+  color: var(--orange);
+  background: rgba(255,107,0,.07);
+  border-left-color: var(--orange);
+}
+.nav-item svg { flex-shrink: 0; }
+.nav-spacer { flex: 1; }
+.nav-user {
+  padding: 16px 22px 0;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-user-avatar {
+  width: 34px; height: 34px;
+  background: var(--orange-dim);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 800;
+  flex-shrink: 0;
+}
+.nav-user-name { font-size: 12.5px; font-weight: 600; color: #ccc; line-height: 1.3; }
+.nav-user-role { font-size: 10px; color: var(--muted); }
+.btn-logout {
+  background: none; border: none; cursor: pointer;
+  color: #444; margin-left: auto; padding: 4px;
+  display: flex; align-items: center;
+  transition: color .18s;
+}
+.btn-logout:hover { color: #f87; }
+
+/* Main area */
+.dash-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.dash-main::-webkit-scrollbar { width: 5px; }
+.dash-main::-webkit-scrollbar-track { background: transparent; }
+.dash-main::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+
+.dash-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.dash-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #fff; }
+.dash-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.dash-date {
+  font-size: 12px; color: var(--muted);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  text-align: right;
+}
+.dash-date strong { display: block; color: #bbb; font-size: 13px; }
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.kpi-card:hover { border-color: rgba(255,107,0,.4); }
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,0,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.kpi-delta { font-size: 11.5px; display: flex; align-items: center; gap: 4px; }
+.kpi-delta.up { color: #4caf50; }
+.kpi-delta.down { color: #f87; }
+.kpi-icon {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 34px; height: 34px;
+  background: var(--orange-dim);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+}
+
+/* Panels row */
+.panels-row { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+.panel-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+.panel-box-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: #ccc; letter-spacing: .5px;
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-box-title::before {
+  content: '';
+  width: 3px; height: 14px;
+  background: var(--orange);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--orange-glow);
+  display: block;
+}
+
+/* Mini bar chart */
+.mini-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; margin-bottom: 8px; }
+.mini-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(to top, var(--orange), rgba(255,150,0,.5));
+  position: relative;
+  min-height: 6px;
+  transition: opacity .2s;
+  cursor: default;
+}
+.mini-bar:hover { opacity: .75; }
+.mini-bar-labels { display: flex; gap: 8px; }
+.mini-bar-label { flex: 1; text-align: center; font-size: 9px; color: var(--muted); }
+
+/* Activity list */
+.activity-list { display: flex; flex-direction: column; gap: 0; }
+.activity-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.activity-dot.green { background: #4caf50; box-shadow: 0 0 6px #4caf5088; }
+.activity-dot.orange { background: var(--orange); box-shadow: 0 0 6px var(--orange-glow); }
+.activity-dot.blue { background: #42a5f5; box-shadow: 0 0 6px #42a5f588; }
+.activity-text { flex: 1; font-size: 12.5px; color: #aaa; }
+.activity-text strong { color: #ddd; }
+.activity-time { font-size: 11px; color: #444; }
+
+@media (max-width: 900px) {
+  .dash-sidebar { width: 60px; }
+  .dash-brand-name, .dash-brand-sub, .nav-item span, .nav-section-label, .nav-user-name, .nav-user-role { display: none; }
+  .nav-item { justify-content: center; padding: 14px; }
+  .nav-item svg { margin: 0; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .panels-row { grid-template-columns: 1fr; }
+  .dash-main { padding: 20px 16px; }
+}
+</style>
+
+<div id="dashboard-screen">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="dash-brand">
+      <div class="dash-brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="dash-brand-name">Facilita Cell</div>
+        <div class="dash-brand-sub">Sistema Integrado</div>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Principal</div>
+    <div class="nav-item active" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Vendas / CRM</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+      <span>Estoque</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Financeiro</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Fiscal</span>
+    </div>
+
+    <div class="nav-section-label">Gestão</div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>Compras</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>Recursos Humanos</span>
+    </div>
+    <div class="nav-item" onclick="setActiveNav(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Analytics</span>
+    </div>
+
+    <div class="nav-spacer"></div>
+
+    <div class="nav-user">
+      <div class="nav-user-avatar">FC</div>
+      <div>
+        <div class="nav-user-name">Administrador</div>
+        <div class="nav-user-role">Acesso total</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()" title="Sair">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Dashboard</div>
+        <div class="dash-subtitle">Visão geral do sistema · Facilita Cell</div>
+      </div>
+      <div class="dash-date" id="dash-date-box">
+        <span id="dash-time">--:--</span>
+        <strong id="dash-date">--/--/----</strong>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Vendas hoje</div>
+        <div class="kpi-value">R$ 4.820</div>
+        <div class="kpi-delta up">▲ 12% vs ontem</div>
+        <div class="kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Estoque (itens)</div>
+        <div class="kpi-value">1.347</div>
+        <div class="kpi-delta down">▼ 3 abaixo do mínimo</div>
+        <div class="kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/></svg>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Clientes ativos</div>
+        <div class="kpi-value">218</div>
+        <div class="kpi-delta up">▲ 5 novos esta semana</div>
+        <div class="kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Receita mensal</div>
+        <div class="kpi-value">R$ 89.4k</div>
+        <div class="kpi-delta up">▲ 8% vs mês anterior</div>
+        <div class="kpi-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels-row">
+      <div class="panel-box">
+        <div class="panel-box-title">Vendas — últimos 7 dias</div>
+        <div class="mini-chart">
+          <div class="mini-bar" style="height:42%" title="Seg"></div>
+          <div class="mini-bar" style="height:60%" title="Ter"></div>
+          <div class="mini-bar" style="height:38%" title="Qua"></div>
+          <div class="mini-bar" style="height:75%" title="Qui"></div>
+          <div class="mini-bar" style="height:55%" title="Sex"></div>
+          <div class="mini-bar" style="height:88%" title="Sáb"></div>
+          <div class="mini-bar" style="height:100%; box-shadow: 0 0 12px rgba(255,107,0,.4);" title="Dom"></div>
+        </div>
+        <div class="mini-bar-labels">
+          <div class="mini-bar-label">Seg</div>
+          <div class="mini-bar-label">Ter</div>
+          <div class="mini-bar-label">Qua</div>
+          <div class="mini-bar-label">Qui</div>
+          <div class="mini-bar-label">Sex</div>
+          <div class="mini-bar-label">Sáb</div>
+          <div class="mini-bar-label">Dom</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <div class="panel-box-title">Atividades recentes</div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div class="activity-text"><strong>Venda #1084</strong> finalizada — R$ 320</div>
+            <div class="activity-time">agora</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <div class="activity-text"><strong>Estoque baixo:</strong> Cabo USB-C</div>
+            <div class="activity-time">14 min</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot blue"></div>
+            <div class="activity-text"><strong>Novo cliente</strong> cadastrado</div>
+            <div class="activity-time">32 min</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div class="activity-text"><strong>NF-e #774</strong> emitida com sucesso</div>
+            <div class="activity-time">1h</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <div class="activity-text"><strong>Compra #210</strong> aguardando aprovação</div>
+            <div class="activity-time">2h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function updateClock() {
+  const now = new Date();
+  document.getElementById('dash-time').textContent =
+    now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('dash-date').textContent =
+    now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
